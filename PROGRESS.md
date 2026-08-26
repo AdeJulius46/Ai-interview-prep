@@ -13,8 +13,8 @@ place to check status, not the chat scrollback.
 - [x] **Phase 6** — Live room streams avatar, timer enforces limit, teardown is clean — `gate:6` — commit `a03fd9d`
 - [x] **Phase 7** — Transcript captured, flushed to API, reconciled on complete — `gate:7` — commits `69b7bd0` (backend), `595c7ea` (frontend)
 - [x] **Phase 8** — STAR feedback report generated and persisted — `gate:8` — commit `d814777`
-- [ ] **Phase 9** — History and progress trend across sessions — `gate:9` — in progress
-- [ ] **Phase 10** — Full Playwright happy path with a mocked SDK, a11y pass — `gate:10`
+- [x] **Phase 9** — History and progress trend across sessions — `gate:9` — commit `c436c27`
+- [ ] **Phase 10** — Full Playwright happy path with a mocked SDK, a11y pass — `gate:10` — in progress
 
 ## Notes / deviations from spec so far
 
@@ -54,3 +54,13 @@ place to check status, not the chat scrollback.
   manually — only `apps/api/.env.test`'s DB gets auto-seeded by the e2e test harness. Docker
   Desktop can also stop on its own between sessions; `docker compose up -d` at the repo root
   brings the two Postgres containers back.
+- Phase 9 fixed a real bug: `apps/web/app/ui/TranscriptList.tsx` uses `useRef`/`useEffect` but
+  had no `'use client'` directive of its own — it only worked in `live-room.tsx` because that
+  file is already a client boundary. Wiring a Server Component (`history/page.tsx`) that
+  imports the `app/ui` barrel exposed it. Fixed by adding `'use client'` directly to the
+  component that needs it, per Next.js convention.
+- **Not yet built** (mentioned in `backend.md` but not required by any specific gate's
+  command): the `@Cron` "Abandoned session reaper" that marks stale `LIVE` interviews
+  `ABANDONED`, and `GET /interviews/:id` (full interview detail with messages + feedback).
+  Progress's exclusion of `ABANDONED` interviews from the trend was verified by setting that
+  status directly in the test, independent of whatever eventually produces it in production.
