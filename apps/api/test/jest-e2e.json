@@ -1,0 +1,11 @@
+{
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "testMatch": ["<rootDir>/**/*.e2e-spec.ts"],
+  "testPathIgnorePatterns": ["<rootDir>/boot"],
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "testTimeout": 20000
+}

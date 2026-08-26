@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Seniority {
+  JUNIOR
+  MID
+  SENIOR
+  STAFF
+}
+
+// Values must stay byte-identical to CompetencySchema in packages/contracts.
+// Guarded by the parity assertion in apps/api/src/common/enum-parity.ts.
+enum Competency {
+  OWNERSHIP
+  CONFLICT
+  FAILURE
+  AMBIGUITY
+  INFLUENCE
+  DELIVERY
+}
+
+enum InterviewStatus {
+  CREATED      // setup saved, not started
+  LIVE         // streaming
+  COMPLETED    // session ended, transcript final
+  SCORED       // feedback generated
+  ABANDONED    // started but never completed, reaped by cron
+}
+
+enum Speaker {
+  INTERVIEWER
+  CANDIDATE
+}
+
+model Interview {
+  id             String          @id @default(uuid())
+  createdAt      DateTime        @default(now())
+  startedAt      DateTime?
+  endedAt        DateTime?
+  status         InterviewStatus @default(CREATED)
+
+  // setup choices
+  role           String
+  seniority      Seniority
+  competencies   Competency[]
+  questionCount  Int             @default(3)
+  timeLimitSecs  Int             @default(180)
+  interviewerName String         @default("John")
+
+  // anam linkage
+  anamSessionId  String?         @unique
+
+  questions      InterviewQuestion[]
+  messages       Message[]
+  feedback       Feedback?
+
+  @@index([createdAt])
+  @@index([status])
+}
+
+model Question {
+  id           String     @id @default(uuid())
+  competency   Competency
+  seniority    Seniority[]        // which levels this question suits
+  text         String
+  active       Boolean    @default(true)
+
+  asked        InterviewQuestion[]
+
+  @@index([competency])
+}
+
+model InterviewQuestion {
+  id          String    @id @default(uuid())
+  interviewId String
+  interview   Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    Question  @relation(fields: [questionId], references: [id])
+  position    Int       // 0-based order within the interview
+
+  @@unique([interviewId, position])
+  @@unique([interviewId, questionId])
+}
+
+model Message {
+  id           String    @id @default(uuid())
+  interviewId  String
+  interview    Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  speaker      Speaker
+  content      String
+  spokenAt     DateTime
+  sequence     Int         // monotonic per interview, assigned by the client buffer
+  source       String      // "sdk" | "anam-api"
+
+  @@unique([interviewId, sequence])
+  @@index([interviewId, spokenAt])
+}
+
+model Feedback {
+  id            String    @id @default(uuid())
+  interviewId   String    @unique
+  interview     Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime  @default(now())
+  overallScore  Float                 // mean of answer scores, 1.0 to 5.0
+  strengths     String[]
+  answers       AnswerFeedback[]
+  model         String                // e.g. "claude-sonnet-4-6"
+  rawResponse   Json                  // kept for debugging prompt regressions
+}
+
+model AnswerFeedback {
+  id            String   @id @default(uuid())
+  feedbackId    String
+  feedback      Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  questionIndex Int
+  question      String
+  answerSummary String
+  hasSituation  Boolean
+  hasTask       Boolean
+  hasAction     Boolean
+  hasResult     Boolean
+  score         Int      // 1..5
+  improvement   String
+
+  @@unique([feedbackId, questionIndex])
+}

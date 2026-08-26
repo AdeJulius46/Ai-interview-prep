@@ -1,0 +1,16 @@
+/* CSS custom properties for the visual spec in frontend.md. Consumed by
+   Tailwind v4's @theme in apps/web. Filled in fully in Phase 4. */
+@import "tailwindcss";
+@theme {
+  --color-canvas: #EDF3EF;
+  --color-surface: #FFFFFF;
+  --color-ink: #111614;
+  --color-ink-muted: #5B6B64;
+  --color-ink-faint: #8A9993;
+  --color-accent: #0F8A63;
+  --color-accent-soft: #8FBFA9;
+  --color-line: #DCE6E0;
+  --color-warn: #B4541F;
+  --radius-card: 14px;
+  --radius-control: 10px;
+}
