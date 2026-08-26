@@ -10,8 +10,8 @@ place to check status, not the chat scrollback.
 - [x] **Phase 3** — Session token endpoint, Anam call mocked in tests, key never leaks — `gate:3` — commit `46ef714`, full chain re-confirmed green
 - [x] **Phase 4** — `apps/web/app/ui` primitives with visual snapshot coverage — `gate:4` — commit `0ebc297`, restructured into `apps/web` in `23331c3`
 - [x] **Phase 5** — Setup screen wired to phase 2 — `gate:5` — commit `c004596`
-- [ ] **Phase 6** — Live room streams avatar, timer enforces limit, teardown is clean — `gate:6` — in progress
-- [ ] **Phase 7** — Transcript captured, flushed to API, reconciled on complete — `gate:7`
+- [x] **Phase 6** — Live room streams avatar, timer enforces limit, teardown is clean — `gate:6` — commit `a03fd9d`
+- [ ] **Phase 7** — Transcript captured, flushed to API, reconciled on complete — `gate:7` — in progress
 - [ ] **Phase 8** — STAR feedback report generated and persisted — `gate:8`
 - [ ] **Phase 9** — History and progress trend across sessions — `gate:9`
 - [ ] **Phase 10** — Full Playwright happy path with a mocked SDK, a11y pass — `gate:10`
