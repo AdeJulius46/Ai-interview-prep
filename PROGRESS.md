@@ -12,8 +12,8 @@ place to check status, not the chat scrollback.
 - [x] **Phase 5** — Setup screen wired to phase 2 — `gate:5` — commit `c004596`
 - [x] **Phase 6** — Live room streams avatar, timer enforces limit, teardown is clean — `gate:6` — commit `a03fd9d`
 - [x] **Phase 7** — Transcript captured, flushed to API, reconciled on complete — `gate:7` — commits `69b7bd0` (backend), `595c7ea` (frontend)
-- [ ] **Phase 8** — STAR feedback report generated and persisted — `gate:8` — in progress
-- [ ] **Phase 9** — History and progress trend across sessions — `gate:9`
+- [x] **Phase 8** — STAR feedback report generated and persisted — `gate:8` — commit `d814777`
+- [ ] **Phase 9** — History and progress trend across sessions — `gate:9` — in progress
 - [ ] **Phase 10** — Full Playwright happy path with a mocked SDK, a11y pass — `gate:10`
 
 ## Notes / deviations from spec so far
@@ -44,3 +44,13 @@ place to check status, not the chat scrollback.
 - `useAnamSession`'s `end('unload')` deliberately never calls `POST /complete` — only a
   `sendBeacon` flush — per `architecture.md`'s "what can go wrong" table (a closed tab leaves
   the interview `LIVE` for the cron reaper to eventually mark `ABANDONED`, not `COMPLETED`).
+- Phase 8: `ScoringProvider.score()` returns `{ result, rawResponse, modelName }` rather than
+  bare `ScoringResult` (backend.md's literal interface) — needed so `FeedbackService` can
+  persist `Feedback.rawResponse`/`Feedback.model` without the provider reaching into Prisma
+  itself. `zod-to-json-schema` hit a "type instantiation excessively deep" TS error at the
+  `packages/contracts` → `apps/api` boundary; worked around with an explicit any-cast wrapper
+  (`schemaToJson` in `anthropic.provider.ts`) — runtime behavior unaffected.
+- The dev Postgres DB (port 5442) needs `pnpm --filter api exec prisma db seed` run once
+  manually — only `apps/api/.env.test`'s DB gets auto-seeded by the e2e test harness. Docker
+  Desktop can also stop on its own between sessions; `docker compose up -d` at the repo root
+  brings the two Postgres containers back.
