@@ -149,8 +149,12 @@ The most important gate in the project. Assertions:
 ### `gate:4` — UI primitives
 
 ```
-pnpm --filter ui test
+pnpm --filter web test -- ui
 ```
+
+`apps/web/app/ui` (see `shared.md` Part B — folded in from the originally spec'd separate
+`packages/ui`) is a Vitest project inside `apps/web`; the `-- ui` filters the run to test
+files under that directory.
 
 - Snapshot every fixture state of every component in `shared.md` Part B.
 - `jest-axe` reports zero violations for each.
@@ -159,7 +163,7 @@ pnpm --filter ui test
   get dropped in refactors and the failure only shows on a real phone.
 - `<StarStrip>` distinguishes present from missing without relying on colour: assert the
   accessible name differs, for example "Result: missing".
-- A lint assertion that no file under `packages/ui/src` contains a hex colour literal.
+- A lint assertion that no file under `apps/web/app/ui` contains a hex colour literal.
 
 ### `gate:5` — Setup screen
 

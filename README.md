@@ -37,9 +37,10 @@ mock-interview-coach/
 ├── apps/
 │  ├── api/                 # NestJS
 │  └── web/                 # Next.js
+│     └── app/
+│        └── ui/            # React primitives, colocated per Next.js convention (see shared.md)
 ├── packages/
-│  ├── contracts/           # shared TS types + Zod schemas (see shared.md)
-│  └── ui/                  # shared React primitives (see shared.md)
+│  └── contracts/           # shared TS types + Zod schemas, used by both apps (see shared.md)
 ├── docker-compose.yml      # postgres (dev) + postgres_test (tests)
 ├── pnpm-workspace.yaml
 └── turbo.json              # optional, for task orchestration
@@ -87,7 +88,7 @@ Each gate is a single command defined in `testing.md`.
 | 1 | `packages/contracts` types + Zod schemas, both apps import them | `pnpm gate:1` |
 | 2 | Interview setup persisted, question bank seeded, per-session question selection varies | `pnpm gate:2` |
 | 3 | Session token endpoint, Anam call mocked in tests, key never leaks | `pnpm gate:3` |
-| 4 | `packages/ui` primitives with visual snapshot coverage | `pnpm gate:4` |
+| 4 | `apps/web/app/ui` primitives with visual snapshot coverage | `pnpm gate:4` |
 | 5 | Setup screen wired to phase 2 | `pnpm gate:5` |
 | 6 | Live room streams avatar, timer enforces limit, teardown is clean | `pnpm gate:6` |
 | 7 | Transcript captured, flushed to API, reconciled on complete | `pnpm gate:7` |

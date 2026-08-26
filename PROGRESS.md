@@ -8,7 +8,7 @@ place to check status, not the chat scrollback.
 - [x] **Phase 1** — `packages/contracts` types + Zod schemas, both apps import them — `gate:1` — commit `31fb880`
 - [x] **Phase 2** — Interview setup persisted, question bank seeded, per-session question selection varies — `gate:2` — commit `c798d5a`
 - [x] **Phase 3** — Session token endpoint, Anam call mocked in tests, key never leaks — `gate:3` — commit `46ef714`, full chain re-confirmed green
-- [x] **Phase 4** — `packages/ui` primitives with visual snapshot coverage — `gate:4` — commit `0ebc297`
+- [x] **Phase 4** — `apps/web/app/ui` primitives with visual snapshot coverage — `gate:4` — commit `0ebc297`, restructured into `apps/web` in `23331c3`
 - [ ] **Phase 5** — Setup screen wired to phase 2 — `gate:5` — in progress
 - [ ] **Phase 6** — Live room streams avatar, timer enforces limit, teardown is clean — `gate:6`
 - [ ] **Phase 7** — Transcript captured, flushed to API, reconciled on complete — `gate:7`
@@ -25,3 +25,8 @@ place to check status, not the chat scrollback.
   dependency that breaks the current CJS Jest transform).
 - `packages/contracts` ships a dual ESM/CJS build (`dist/` + `dist-cjs/`) since pure ESM broke
   `apps/api`'s `ts-jest`.
+- `packages/ui` was folded into `apps/web/app/ui` (commit `23331c3`) — the spec originally
+  called for a separate workspace package mirroring `packages/contracts`, but only `apps/web`
+  ever consumed it, so it's now colocated inside `app/` per Next.js's own convention
+  (`app/ui/`, `app/lib/`). `README.md`, `frontend.md`, `shared.md`, and `testing.md` were
+  updated to match.

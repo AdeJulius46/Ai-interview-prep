@@ -1,7 +1,9 @@
-# Shared Packages Specification
+# Shared Code Specification
 
-Two workspace packages sit between the API and the web app. Build both in phase 1 and 4
-respectively, before anything consumes them.
+Two pieces of shared code are built before anything consumes them: `packages/contracts`
+(Phase 1), a real workspace package because both `apps/api` and `apps/web` depend on it, and
+`apps/web/app/ui` (Phase 4), a colocated primitives directory inside the Next.js app rather
+than a separate package, since only `apps/web` ever consumes it.
 
 ---
 
@@ -151,15 +153,25 @@ Both apps depend on it as `"@coach/contracts": "workspace:*"`. Add it to the Nex
 
 ---
 
-# Part B: `packages/ui`
+# Part B: `apps/web/app/ui`
 
 Presentational primitives only. No data fetching, no SDK, no router. Every component takes
 props and renders. This keeps them snapshot-testable without mounting the app.
 
+This was originally spec'd as a separate `packages/ui` workspace package, mirroring
+`packages/contracts`. It was folded into `apps/web/app/ui` instead: only `apps/web` ever
+consumed it, so the cross-package boundary bought type-checking overhead (a second
+`tsconfig`, a dual ESM/CJS build) without a second consumer to justify it. Colocating shared
+code inside `app/` — `app/ui/`, `app/lib/`, and so on — is the layout Next.js's own
+documentation and tutorials use; `packages/contracts` stays a real workspace package because
+`apps/api` genuinely needs it too. The component rules below (no fetching, props-only,
+snapshot-testable in isolation) are unchanged by the move — they were never about the
+package boundary, they were about keeping these components dumb.
+
 ## Tokens
 
-`packages/ui/tokens.css` holds the CSS custom properties from `frontend.md`. Tailwind v4
-consumes them:
+`apps/web/app/tokens.css` holds the CSS custom properties from `frontend.md`, imported by
+`app/globals.css`. Tailwind v4 consumes them:
 
 ```css
 @import "tailwindcss";
@@ -179,7 +191,8 @@ consumes them:
 ```
 
 No component may use a raw hex value. Add a lint rule that rejects hex literals in
-`packages/ui/src` and `apps/web/app`.
+`apps/web/app/ui` (tokens.css itself lives one level up, outside that directory, and is the
+one legitimate place hex values live).
 
 ## Components
 

@@ -1,7 +1,8 @@
 # Frontend Specification (Next.js 15 + Tailwind v4)
 
-Location: `apps/web`. Read `README.md` first. UI primitives live in `packages/ui`, see
-`shared.md`.
+Location: `apps/web`. Read `README.md` first. UI primitives live in `apps/web/app/ui`,
+colocated inside `app/` per Next.js's own App Router convention rather than a separate
+workspace package — see `shared.md`.
 
 ## Route structure
 
@@ -15,6 +16,8 @@ app/
 │     ├─ live-room.tsx           # "use client", owns the SDK
 │     └─ feedback/page.tsx       # STAR report
 ├─ history/page.tsx              # past sessions + progress trend
+├─ ui/                           # React primitives, see shared.md Part B
+├─ tokens.css                    # design tokens, imported by globals.css
 └─ api-client/                   # typed fetch wrappers over packages/contracts
 ```
 
@@ -182,7 +185,7 @@ appeared. That is the screen's actual payload.
 ## Visual specification
 
 The screenshot pins the direction, so follow it rather than reinventing. Extract these
-tokens into `packages/ui/tokens.css` as CSS custom properties consumed by Tailwind v4's
+tokens into `apps/web/app/tokens.css` as CSS custom properties consumed by Tailwind v4's
 `@theme`.
 
 ### Palette
