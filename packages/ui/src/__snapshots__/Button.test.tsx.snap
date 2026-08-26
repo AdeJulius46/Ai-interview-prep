@@ -1,0 +1,60 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Button fixtures > primary > matches its snapshot 1`] = `
+<div>
+  <button
+    class="inline-flex min-h-11 items-center justify-center rounded-[8px] px-[18px] py-[10px] text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed bg-accent text-white disabled:bg-accent-soft disabled:text-white"
+    type="button"
+  >
+    Start interview
+  </button>
+</div>
+`;
+
+exports[`Button fixtures > primary-disabled > matches its snapshot 1`] = `
+<div>
+  <button
+    class="inline-flex min-h-11 items-center justify-center rounded-[8px] px-[18px] py-[10px] text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed bg-accent text-white disabled:bg-accent-soft disabled:text-white"
+    disabled=""
+    type="button"
+  >
+    Start interview
+  </button>
+</div>
+`;
+
+exports[`Button fixtures > primary-loading > matches its snapshot 1`] = `
+<div>
+  <button
+    aria-busy="true"
+    class="inline-flex min-h-11 items-center justify-center rounded-[8px] px-[18px] py-[10px] text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed bg-accent text-white disabled:bg-accent-soft disabled:text-white"
+    disabled=""
+    type="button"
+  >
+    Connecting...
+  </button>
+</div>
+`;
+
+exports[`Button fixtures > secondary > matches its snapshot 1`] = `
+<div>
+  <button
+    class="inline-flex min-h-11 items-center justify-center rounded-[8px] px-[18px] py-[10px] text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed border border-line bg-surface text-ink disabled:text-ink-faint"
+    type="button"
+  >
+    Skip question
+  </button>
+</div>
+`;
+
+exports[`Button fixtures > secondary-disabled > matches its snapshot 1`] = `
+<div>
+  <button
+    class="inline-flex min-h-11 items-center justify-center rounded-[8px] px-[18px] py-[10px] text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed border border-line bg-surface text-ink disabled:text-ink-faint"
+    disabled=""
+    type="button"
+  >
+    Skip question
+  </button>
+</div>
+`;

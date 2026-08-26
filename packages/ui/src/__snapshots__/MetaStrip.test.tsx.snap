@@ -1,0 +1,89 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MetaStrip fixtures > interview-meta > matches its snapshot 1`] = `
+<div>
+  <div
+    class="flex divide-x divide-line overflow-hidden rounded-control border border-line"
+  >
+    <div
+      class="flex-1 px-4 py-3 text-center"
+    >
+      <span
+        class="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-faint"
+      >
+        Interviewer
+      </span>
+      <p
+        class="mt-1 text-sm font-semibold tabular-nums text-ink"
+      >
+        John
+      </p>
+    </div>
+    <div
+      class="flex-1 px-4 py-3 text-center"
+    >
+      <span
+        class="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-faint"
+      >
+        Questions
+      </span>
+      <p
+        class="mt-1 text-sm font-semibold tabular-nums text-ink"
+      >
+        3
+      </p>
+    </div>
+    <div
+      class="flex-1 px-4 py-3 text-center"
+    >
+      <span
+        class="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-faint"
+      >
+        Time limit
+      </span>
+      <p
+        class="mt-1 text-sm font-semibold tabular-nums text-ink"
+      >
+        180s
+      </p>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`MetaStrip fixtures > two-items > matches its snapshot 1`] = `
+<div>
+  <div
+    class="flex divide-x divide-line overflow-hidden rounded-control border border-line"
+  >
+    <div
+      class="flex-1 px-4 py-3 text-center"
+    >
+      <span
+        class="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-faint"
+      >
+        Score
+      </span>
+      <p
+        class="mt-1 text-sm font-semibold tabular-nums text-ink"
+      >
+        4
+      </p>
+    </div>
+    <div
+      class="flex-1 px-4 py-3 text-center"
+    >
+      <span
+        class="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-faint"
+      >
+        Max
+      </span>
+      <p
+        class="mt-1 text-sm font-semibold tabular-nums text-ink"
+      >
+        5
+      </p>
+    </div>
+  </div>
+</div>
+`;

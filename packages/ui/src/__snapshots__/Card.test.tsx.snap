@@ -1,0 +1,86 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Card fixtures > basic > matches its snapshot 1`] = `
+<div>
+  <div
+    class="rounded-card border border-line bg-surface p-5"
+  >
+    Card body content
+  </div>
+</div>
+`;
+
+exports[`Card fixtures > with-classname > matches its snapshot 1`] = `
+<div>
+  <div
+    class="rounded-card border border-line bg-surface p-5 p-0"
+  >
+    Card body content
+  </div>
+</div>
+`;
+
+exports[`Card.Header fixtures > title-only > matches its snapshot 1`] = `
+<div>
+  <div
+    class="mb-4 flex items-start justify-between gap-3"
+  >
+    <div>
+      <h2
+        class="mt-1 text-lg font-semibold tracking-[-0.01em] text-ink"
+      >
+        Interview stage
+      </h2>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card.Header fixtures > with-aside > matches its snapshot 1`] = `
+<div>
+  <div
+    class="mb-4 flex items-start justify-between gap-3"
+  >
+    <div>
+      <span
+        class="text-[11px] font-semibold uppercase tracking-[0.08em] text-accent"
+      >
+        LIVE ROOM
+      </span>
+      <h2
+        class="mt-1 text-lg font-semibold tracking-[-0.01em] text-ink"
+      >
+        Interview stage
+      </h2>
+    </div>
+    <div
+      class="shrink-0"
+    >
+      <span>
+        3 minute sessions
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card.Header fixtures > with-eyebrow > matches its snapshot 1`] = `
+<div>
+  <div
+    class="mb-4 flex items-start justify-between gap-3"
+  >
+    <div>
+      <span
+        class="text-[11px] font-semibold uppercase tracking-[0.08em] text-accent"
+      >
+        LIVE ROOM
+      </span>
+      <h2
+        class="mt-1 text-lg font-semibold tracking-[-0.01em] text-ink"
+      >
+        Interview stage
+      </h2>
+    </div>
+  </div>
+</div>
+`;

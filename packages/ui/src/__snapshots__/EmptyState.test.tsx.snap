@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`EmptyState fixtures > custom-min-height > matches its snapshot 1`] = `
+<div>
+  <div
+    class="flex items-center justify-center rounded-control border border-dashed border-line px-4 text-center text-sm text-ink-faint"
+    style="min-height: 200px;"
+  >
+    Transcript will appear here.
+  </div>
+</div>
+`;
+
+exports[`EmptyState fixtures > default > matches its snapshot 1`] = `
+<div>
+  <div
+    class="flex items-center justify-center rounded-control border border-dashed border-line px-4 text-center text-sm text-ink-faint"
+    style="min-height: 120px;"
+  >
+    Transcript will appear here.
+  </div>
+</div>
+`;

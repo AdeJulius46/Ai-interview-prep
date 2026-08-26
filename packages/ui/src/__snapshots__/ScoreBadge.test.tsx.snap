@@ -1,0 +1,73 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ScoreBadge fixtures > custom-max > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center gap-1 rounded-control border border-line bg-surface px-2.5 py-1 text-sm font-semibold tabular-nums text-ink"
+  >
+    <span>
+      8
+    </span>
+    <span
+      class="text-ink-faint"
+    >
+      / 
+      10
+    </span>
+  </span>
+</div>
+`;
+
+exports[`ScoreBadge fixtures > low-score > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center gap-1 rounded-control border border-line bg-surface px-2.5 py-1 text-sm font-semibold tabular-nums text-ink"
+  >
+    <span>
+      1
+    </span>
+    <span
+      class="text-ink-faint"
+    >
+      / 
+      5
+    </span>
+  </span>
+</div>
+`;
+
+exports[`ScoreBadge fixtures > max-score > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center gap-1 rounded-control border border-line bg-surface px-2.5 py-1 text-sm font-semibold tabular-nums text-ink"
+  >
+    <span>
+      5
+    </span>
+    <span
+      class="text-ink-faint"
+    >
+      / 
+      5
+    </span>
+  </span>
+</div>
+`;
+
+exports[`ScoreBadge fixtures > mid-score > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center gap-1 rounded-control border border-line bg-surface px-2.5 py-1 text-sm font-semibold tabular-nums text-ink"
+  >
+    <span>
+      3
+    </span>
+    <span
+      class="text-ink-faint"
+    >
+      / 
+      5
+    </span>
+  </span>
+</div>
+`;

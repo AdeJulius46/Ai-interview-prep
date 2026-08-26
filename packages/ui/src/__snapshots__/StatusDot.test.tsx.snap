@@ -1,0 +1,91 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`StatusDot fixtures > connecting > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center gap-2"
+  >
+    <span
+      aria-hidden="true"
+      class="h-2 w-2 rounded-full bg-accent-soft"
+    />
+    <span
+      class="text-sm font-medium text-ink"
+    >
+      Connecting
+    </span>
+  </span>
+</div>
+`;
+
+exports[`StatusDot fixtures > ended > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center gap-2"
+  >
+    <span
+      aria-hidden="true"
+      class="h-2 w-2 rounded-full bg-ink-faint"
+    />
+    <span
+      class="text-sm font-medium text-ink"
+    >
+      Ended
+    </span>
+  </span>
+</div>
+`;
+
+exports[`StatusDot fixtures > error > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center gap-2"
+  >
+    <span
+      aria-hidden="true"
+      class="h-2 w-2 rounded-full bg-warn"
+    />
+    <span
+      class="text-sm font-medium text-ink"
+    >
+      Error
+    </span>
+  </span>
+</div>
+`;
+
+exports[`StatusDot fixtures > live > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center gap-2"
+  >
+    <span
+      aria-hidden="true"
+      class="h-2 w-2 rounded-full bg-accent ui-status-pulse"
+    />
+    <span
+      class="text-sm font-medium text-ink"
+    >
+      Live
+    </span>
+  </span>
+</div>
+`;
+
+exports[`StatusDot fixtures > ready > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center gap-2"
+  >
+    <span
+      aria-hidden="true"
+      class="h-2 w-2 rounded-full bg-accent"
+    />
+    <span
+      class="text-sm font-medium text-ink"
+    >
+      Ready
+    </span>
+  </span>
+</div>
+`;

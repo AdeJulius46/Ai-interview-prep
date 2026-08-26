@@ -1,7 +1,15 @@
-@import "tailwindcss";
+@import "@coach/ui/tokens.css";
 
 /*
- * Full design tokens (--color-canvas, --color-accent, ...) land in Phase 4
- * via packages/ui/tokens.css, see shared.md Part B. This is a Phase 0
- * placeholder so the app builds with Tailwind v4 wired up.
+ * @coach/ui/tokens.css itself starts with `@import "tailwindcss";` and
+ * declares the @theme block (--color-canvas, --color-accent, ...) from
+ * shared.md Part B / frontend.md's palette table, so Tailwind v4's utility
+ * generation (bg-canvas, text-ink, rounded-card, ...) picks them up here.
+ * Screens land in Phase 5+; this file only wires the design tokens through.
  */
+@source "../../../packages/ui/src";
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+}

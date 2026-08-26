@@ -1,0 +1,160 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`StarStrip fixtures > all-missing > matches its snapshot 1`] = `
+<div>
+  <div
+    class="flex divide-x divide-line overflow-hidden rounded-control border border-line"
+  >
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-canvas"
+    >
+      <span
+        aria-label="Situation: missing"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-line bg-transparent text-ink-faint line-through decoration-2"
+        role="img"
+      >
+        S
+      </span>
+    </div>
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-canvas"
+    >
+      <span
+        aria-label="Task: missing"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-line bg-transparent text-ink-faint line-through decoration-2"
+        role="img"
+      >
+        T
+      </span>
+    </div>
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-canvas"
+    >
+      <span
+        aria-label="Action: missing"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-line bg-transparent text-ink-faint line-through decoration-2"
+        role="img"
+      >
+        A
+      </span>
+    </div>
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-canvas"
+    >
+      <span
+        aria-label="Result: missing"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-line bg-transparent text-ink-faint line-through decoration-2"
+        role="img"
+      >
+        R
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`StarStrip fixtures > all-present > matches its snapshot 1`] = `
+<div>
+  <div
+    class="flex divide-x divide-line overflow-hidden rounded-control border border-line"
+  >
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-surface"
+    >
+      <span
+        aria-label="Situation: present"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-accent bg-accent text-white"
+        role="img"
+      >
+        S
+      </span>
+    </div>
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-surface"
+    >
+      <span
+        aria-label="Task: present"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-accent bg-accent text-white"
+        role="img"
+      >
+        T
+      </span>
+    </div>
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-surface"
+    >
+      <span
+        aria-label="Action: present"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-accent bg-accent text-white"
+        role="img"
+      >
+        A
+      </span>
+    </div>
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-surface"
+    >
+      <span
+        aria-label="Result: present"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-accent bg-accent text-white"
+        role="img"
+      >
+        R
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`StarStrip fixtures > missing-action-and-result > matches its snapshot 1`] = `
+<div>
+  <div
+    class="flex divide-x divide-line overflow-hidden rounded-control border border-line"
+  >
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-surface"
+    >
+      <span
+        aria-label="Situation: present"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-accent bg-accent text-white"
+        role="img"
+      >
+        S
+      </span>
+    </div>
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-surface"
+    >
+      <span
+        aria-label="Task: present"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-accent bg-accent text-white"
+        role="img"
+      >
+        T
+      </span>
+    </div>
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-canvas"
+    >
+      <span
+        aria-label="Action: missing"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-line bg-transparent text-ink-faint line-through decoration-2"
+        role="img"
+      >
+        A
+      </span>
+    </div>
+    <div
+      class="flex flex-1 flex-col items-center gap-1 px-3 py-3 bg-canvas"
+    >
+      <span
+        aria-label="Result: missing"
+        class="flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold border-line bg-transparent text-ink-faint line-through decoration-2"
+        role="img"
+      >
+        R
+      </span>
+    </div>
+  </div>
+</div>
+`;

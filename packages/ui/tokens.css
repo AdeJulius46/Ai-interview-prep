@@ -14,3 +14,25 @@
   --radius-card: 14px;
   --radius-control: 10px;
 }
+
+/* Owned by <StatusDot>: the "live" pulse, guarded behind
+   prefers-reduced-motion per frontend.md's Quality floor. */
+@keyframes ui-status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.ui-status-pulse {
+  animation: ui-status-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-status-pulse {
+    animation: none;
+  }
+}

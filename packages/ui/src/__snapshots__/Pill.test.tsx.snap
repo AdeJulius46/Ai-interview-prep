@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Pill fixtures > accent > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium border-accent-soft bg-accent-soft text-ink"
+  >
+    Live
+  </span>
+</div>
+`;
+
+exports[`Pill fixtures > default-tone > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium border-line bg-canvas text-ink-muted"
+  >
+    3 minute sessions
+  </span>
+</div>
+`;
+
+exports[`Pill fixtures > neutral > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium border-line bg-canvas text-ink-muted"
+  >
+    3 minute sessions
+  </span>
+</div>
+`;
+
+exports[`Pill fixtures > warn > matches its snapshot 1`] = `
+<div>
+  <span
+    class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium border-warn bg-surface text-warn"
+  >
+    Time low
+  </span>
+</div>
+`;

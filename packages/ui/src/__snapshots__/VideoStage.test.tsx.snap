@@ -1,0 +1,69 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`VideoStage fixtures > connecting > matches its snapshot 1`] = `
+<div>
+  <div
+    class="aspect-[16/10] overflow-hidden rounded-control border border-line bg-black"
+    data-state="connecting"
+  >
+    <video
+      aria-label="Interview stage"
+      autoplay=""
+      class="h-full w-full object-cover"
+      id="anam-video"
+      playsinline=""
+    />
+  </div>
+</div>
+`;
+
+exports[`VideoStage fixtures > error > matches its snapshot 1`] = `
+<div>
+  <div
+    class="aspect-[16/10] overflow-hidden rounded-control border border-line bg-black"
+    data-state="error"
+  >
+    <video
+      aria-label="Interview stage"
+      autoplay=""
+      class="h-full w-full object-cover"
+      id="anam-video"
+      playsinline=""
+    />
+  </div>
+</div>
+`;
+
+exports[`VideoStage fixtures > idle > matches its snapshot 1`] = `
+<div>
+  <div
+    class="aspect-[16/10] overflow-hidden rounded-control border border-line bg-black"
+    data-state="idle"
+  >
+    <video
+      aria-label="Interview stage"
+      autoplay=""
+      class="h-full w-full object-cover"
+      id="anam-video"
+      playsinline=""
+    />
+  </div>
+</div>
+`;
+
+exports[`VideoStage fixtures > live > matches its snapshot 1`] = `
+<div>
+  <div
+    class="aspect-[16/10] overflow-hidden rounded-control border border-line bg-black"
+    data-state="live"
+  >
+    <video
+      aria-label="Interview stage"
+      autoplay=""
+      class="h-full w-full object-cover"
+      id="anam-video"
+      playsinline=""
+    />
+  </div>
+</div>
+`;

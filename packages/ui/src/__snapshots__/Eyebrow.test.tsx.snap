@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Eyebrow fixtures > accent > matches its snapshot 1`] = `
+<div>
+  <span
+    class="text-[11px] font-semibold uppercase tracking-[0.08em] text-accent"
+  >
+    LIVE ROOM
+  </span>
+</div>
+`;
+
+exports[`Eyebrow fixtures > default-tone > matches its snapshot 1`] = `
+<div>
+  <span
+    class="text-[11px] font-semibold uppercase tracking-[0.08em] text-accent"
+  >
+    CAPTURE
+  </span>
+</div>
+`;
+
+exports[`Eyebrow fixtures > faint > matches its snapshot 1`] = `
+<div>
+  <span
+    class="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-faint"
+  >
+    INTERVIEWER
+  </span>
+</div>
+`;

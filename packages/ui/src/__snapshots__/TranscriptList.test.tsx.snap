@@ -1,0 +1,49 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TranscriptList fixtures > empty > matches its snapshot 1`] = `
+<div>
+  <div
+    aria-live="polite"
+    class=""
+    role="log"
+  >
+    <div
+      class="flex items-center justify-center rounded-control border border-dashed border-line px-4 text-center text-sm text-ink-faint"
+      style="min-height: 120px;"
+    >
+      Transcript will appear here.
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TranscriptList fixtures > with-lines > matches its snapshot 1`] = `
+<div>
+  <div
+    aria-live="polite"
+    class="max-h-80 space-y-3 overflow-y-auto"
+    role="log"
+  >
+    <p
+      class="text-sm leading-[1.55] text-ink-muted"
+    >
+      <span
+        class="mr-2 font-semibold text-accent"
+      >
+        Interviewer
+      </span>
+      Tell me about a time you owned a project end to end.
+    </p>
+    <p
+      class="text-sm leading-[1.55] text-ink-muted"
+    >
+      <span
+        class="mr-2 font-semibold text-ink"
+      >
+        Candidate
+      </span>
+      Sure, at my last job I led the migration of our billing system.
+    </p>
+  </div>
+</div>
+`;
