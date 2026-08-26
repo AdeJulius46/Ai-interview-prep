@@ -1,6 +1,7 @@
 ﻿import { describe, expect, it } from 'vitest';
 import {
   CreateInterviewInputSchema,
+  HistoryPageDtoSchema,
   InterviewDtoSchema,
   InterviewSummaryDtoSchema,
 } from './interview.js';
@@ -128,5 +129,46 @@ describe('InterviewSummaryDtoSchema', () => {
   it('rejects a missing id', () => {
     const { id, ...rest } = validSummary;
     expect(InterviewSummaryDtoSchema.safeParse(rest).success).toBe(false);
+  });
+});
+
+describe('HistoryPageDtoSchema', () => {
+  const validSummary = {
+    id: '123e4567-e89b-12d3-a456-426614174000',
+    createdAt: new Date().toISOString(),
+    role: 'Frontend Engineer',
+    seniority: 'MID',
+    competencies: ['OWNERSHIP'],
+    status: 'SCORED',
+    overallScore: 3.5,
+  };
+
+  it('accepts a valid page with a null nextCursor', () => {
+    expect(
+      HistoryPageDtoSchema.safeParse({ items: [validSummary], nextCursor: null }).success,
+    ).toBe(true);
+  });
+
+  it('accepts a valid page with a uuid nextCursor', () => {
+    expect(
+      HistoryPageDtoSchema.safeParse({
+        items: [validSummary],
+        nextCursor: '223e4567-e89b-12d3-a456-426614174000',
+      }).success,
+    ).toBe(true);
+  });
+
+  it('accepts an empty items array', () => {
+    expect(HistoryPageDtoSchema.safeParse({ items: [], nextCursor: null }).success).toBe(true);
+  });
+
+  it('rejects a missing nextCursor', () => {
+    expect(HistoryPageDtoSchema.safeParse({ items: [validSummary] }).success).toBe(false);
+  });
+
+  it('rejects a non-uuid nextCursor', () => {
+    expect(
+      HistoryPageDtoSchema.safeParse({ items: [validSummary], nextCursor: 'not-a-uuid' }).success,
+    ).toBe(false);
   });
 });

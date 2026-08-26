@@ -20,6 +20,7 @@ export type {
   AppendMessagesResult,
   FeedbackDto,
   ProgressDto,
+  HistoryPageDto,
   ApiErrorCode,
   ApiErrorBody,
 } from '@coach/contracts';
@@ -27,12 +28,16 @@ export type {
 import {
   ApiErrorBodySchema,
   AppendMessagesResultSchema,
+  HistoryPageDtoSchema,
   InterviewDtoSchema,
+  ProgressDtoSchema,
   SessionTokenResponseSchema,
   type ApiErrorBody,
   type AppendMessagesResult,
   type CreateInterviewInput,
+  type HistoryPageDto,
   type InterviewDto,
+  type ProgressDto,
   type SessionTokenResponse,
   type TranscriptLine,
 } from '@coach/contracts';
@@ -131,4 +136,34 @@ export async function completeInterview(
   const res = await fetch(url, { method: 'POST' });
   if (!res.ok) throw await toApiError(res);
   return InterviewDtoSchema.parse(await res.json());
+}
+
+/**
+ * GETs a page of `/interviews` (newest first) for the history screen. See
+ * backend.md, "History list" — `nextCursor` is `null` once there is no
+ * further page.
+ */
+export async function getHistory(options?: {
+  limit?: number;
+  cursor?: string;
+}): Promise<HistoryPageDto> {
+  const params = new URLSearchParams();
+  if (options?.limit) params.set('limit', String(options.limit));
+  if (options?.cursor) params.set('cursor', options.cursor);
+  const query = params.toString();
+  const res = await fetch(`${API_BASE}/api/interviews${query ? `?${query}` : ''}`, {
+    cache: 'no-store',
+  });
+  if (!res.ok) throw await toApiError(res);
+  return HistoryPageDtoSchema.parse(await res.json());
+}
+
+/**
+ * GETs `/progress`: the score trend and STAR coverage across every SCORED
+ * session. See backend.md, "GET /progress".
+ */
+export async function getProgress(): Promise<ProgressDto> {
+  const res = await fetch(`${API_BASE}/api/progress`, { cache: 'no-store' });
+  if (!res.ok) throw await toApiError(res);
+  return ProgressDtoSchema.parse(await res.json());
 }

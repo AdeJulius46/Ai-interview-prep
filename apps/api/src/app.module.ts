@@ -5,6 +5,7 @@ import { HealthModule } from './health/health.module';
 import { InterviewsModule } from './interviews/interviews.module';
 import { TranscriptModule } from './transcript/transcript.module';
 import { FeedbackModule } from './feedback/feedback.module';
+import { ProgressModule } from './progress/progress.module';
 // Side-effect import: throws at module-load time if the Prisma enums and
 // the @coach/contracts enums have drifted. See shared.md, "Enum parity guard".
 import './common/enum-parity';
@@ -17,6 +18,7 @@ import './common/enum-parity';
     InterviewsModule,
     TranscriptModule,
     FeedbackModule,
+    ProgressModule,
   ],
 })
 export class AppModule {}

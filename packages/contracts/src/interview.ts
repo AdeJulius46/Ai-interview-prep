@@ -34,3 +34,11 @@ export const InterviewSummaryDtoSchema = z.object({
   overallScore: z.number().nullable(),
 });
 export type InterviewSummaryDto = z.infer<typeof InterviewSummaryDtoSchema>;
+
+// GET /interviews?limit=&cursor= — backend.md, "History list". `nextCursor`
+// is null once there are no further pages.
+export const HistoryPageDtoSchema = z.object({
+  items: z.array(InterviewSummaryDtoSchema),
+  nextCursor: z.string().uuid().nullable(),
+});
+export type HistoryPageDto = z.infer<typeof HistoryPageDtoSchema>;

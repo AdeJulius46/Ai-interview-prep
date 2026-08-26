@@ -1,3 +1,5 @@
+'use client';
+
 import { forwardRef, useEffect, useRef, type HTMLAttributes } from 'react';
 import type { TranscriptLine } from '@coach/contracts';
 import { cx } from './lib/cx';
