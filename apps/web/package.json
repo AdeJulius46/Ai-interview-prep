@@ -13,6 +13,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@anam-ai/js-sdk": "^4.26.0",
     "@coach/contracts": "workspace:*",
     "next": "15.5.7",
     "react": "19.1.1",

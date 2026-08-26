@@ -26,9 +26,11 @@ export type {
 import {
   ApiErrorBodySchema,
   InterviewDtoSchema,
+  SessionTokenResponseSchema,
   type ApiErrorBody,
   type CreateInterviewInput,
   type InterviewDto,
+  type SessionTokenResponse,
 } from '@coach/contracts';
 
 export { ApiErrorBodySchema };
@@ -66,4 +68,22 @@ export async function createInterview(input: CreateInterviewInput): Promise<Inte
   });
   if (!res.ok) throw await toApiError(res);
   return InterviewDtoSchema.parse(await res.json());
+}
+
+/**
+ * POSTs to `/interviews/:id/session-token` and parses the response through
+ * `SessionTokenResponseSchema` — `{ sessionToken, timeLimitSecs, expiresAt }`
+ * only, never `avatarId`/`voiceId`/`llmId`/`systemPrompt` (see
+ * architecture.md, "The key never crosses arrow 6"). Non-2xx responses throw
+ * the parsed `ApiErrorBody` via `toApiError`, e.g. 409
+ * `InterviewAlreadyStarted` or 502 `AnamUnavailable`, so `useAnamSession` can
+ * surface the server's own message. See frontend.md, "`useAnamSession` hook
+ * > start()".
+ */
+export async function startSession(interviewId: string): Promise<SessionTokenResponse> {
+  const res = await fetch(`${API_BASE}/api/interviews/${interviewId}/session-token`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw await toApiError(res);
+  return SessionTokenResponseSchema.parse(await res.json());
 }
