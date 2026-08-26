@@ -53,6 +53,13 @@ model Interview {
   timeLimitSecs  Int             @default(180)
   interviewerName String         @default("John")
 
+  // Version of the PROMPT_V1/PROMPT_V2/... constant used to render this
+  // interview's persona system prompt. See backend.md, PersonaService:
+  // "Version the prompt constant and store the version on the interview
+  // row. When behaviour regresses you need to know which prompt produced
+  // which transcript."
+  promptVersion  String          @default("v1")
+
   // anam linkage
   anamSessionId  String?         @unique
 
