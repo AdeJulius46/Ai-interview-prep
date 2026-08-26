@@ -11,7 +11,7 @@
     "gate:1": "pnpm gate:0 && pnpm --filter contracts test",
     "gate:2": "pnpm gate:1 && pnpm --filter api test:e2e -- interviews.create",
     "gate:3": "pnpm gate:2 && pnpm --filter api test:e2e -- session-token",
-    "gate:4": "pnpm gate:1 && pnpm --filter ui test",
+    "gate:4": "pnpm gate:1 && pnpm --filter web test -- ui",
     "gate:5": "pnpm gate:2 && pnpm gate:4 && pnpm --filter web test -- setup && pnpm --filter web test:e2e -- setup.spec",
     "gate:6": "pnpm gate:3 && pnpm gate:5 && pnpm --filter web test:e2e -- live-room.spec",
     "gate:7": "pnpm gate:6 && pnpm --filter api test:e2e -- transcript && pnpm --filter web test:e2e -- transcript.spec",
