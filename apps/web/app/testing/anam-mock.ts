@@ -42,6 +42,11 @@ declare global {
     __ANAM_MOCK__?: boolean;
     __anamMockCallLog?: string[];
     __anamMockLocalStream?: MediaStream;
+    // Test-only hook (see e2e/transcript.spec.ts): when set, schedules one
+    // extra candidate turn this many ms after SESSION_READY, arriving after
+    // the first periodic flush tick and before the second — so a test can
+    // observe that flush #2 sends only the new line, not the whole history.
+    __anamMockExtraTurnDelayMs?: number;
   }
 }
 
@@ -49,8 +54,15 @@ const STREAM_ATTACH_DELAY_MS = 300;
 const SESSION_READY_DELAY_MS = 400;
 const GREETING_DELAY_MS = 150;
 const QUESTION_ONE_DELAY_MS = 200;
+const PARTIAL_CAPTION_DELAY_MS = 300;
 const CANDIDATE_TURN_DELAY_MS = 350;
 const PROBE_DELAY_MS = 350;
+
+// A distinctive marker so tests can assert this text is never included in a
+// transcript flush (testing.md gate:7: "Partial MESSAGE_STREAM_EVENT_RECEIVED
+// text is never included in a flush") — it is superseded by the next full
+// MESSAGE_HISTORY_UPDATED snapshot and never enters transcriptRef.
+export const PARTIAL_CAPTION_MARKER = 'partial-caption-never-flushed-marker';
 
 interface MockMessage {
   role: 'user' | 'persona';
@@ -144,6 +156,17 @@ class MockAnamClient {
         this.emit(AnamEvent.MESSAGE_HISTORY_UPDATED, messages.slice());
       });
 
+      this.schedule(
+        GREETING_DELAY_MS + QUESTION_ONE_DELAY_MS + PARTIAL_CAPTION_DELAY_MS,
+        () => {
+          this.emit(AnamEvent.MESSAGE_STREAM_EVENT_RECEIVED, {
+            role: 'user',
+            content: PARTIAL_CAPTION_MARKER,
+            endOfSpeech: false,
+          });
+        },
+      );
+
       this.schedule(GREETING_DELAY_MS + QUESTION_ONE_DELAY_MS + CANDIDATE_TURN_DELAY_MS, () => {
         messages.push({
           role: 'user',
@@ -159,6 +182,18 @@ class MockAnamClient {
           this.emit(AnamEvent.MESSAGE_HISTORY_UPDATED, messages.slice());
         },
       );
+
+      const extraDelay =
+        typeof window !== 'undefined' ? window.__anamMockExtraTurnDelayMs : undefined;
+      if (extraDelay) {
+        this.schedule(extraDelay, () => {
+          messages.push({
+            role: 'user',
+            content: 'A second-wave answer sent well after the first flush tick.',
+          });
+          this.emit(AnamEvent.MESSAGE_HISTORY_UPDATED, messages.slice());
+        });
+      }
     });
   }
 

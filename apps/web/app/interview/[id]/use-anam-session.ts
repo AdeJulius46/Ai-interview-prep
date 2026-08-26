@@ -8,7 +8,7 @@
 // on mount) or the browser's autoplay policy silently blocks the stream.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TranscriptLine } from '@coach/contracts';
-import { startSession } from '../../api-client';
+import { API_BASE, appendMessages, completeInterview, startSession } from '../../api-client';
 import { AnamEventNames, type AnamClientLike, type AnamMessage, type AnamModuleLike } from './anam-types';
 
 export type SessionState = 'idle' | 'connecting' | 'live' | 'ending' | 'ended' | 'error';
@@ -35,6 +35,53 @@ const ERROR_MESSAGES = {
 // ("Question two.", "Question three.") rather than candidate turns, so a
 // probe never inflates the count (frontend.md, "questionsAnswered").
 const QUESTION_MARKER = /\bQuestion (one|two|three|four|five)\b/i;
+
+// Flush cadence from frontend.md, "Transcript buffering": "Flush
+// snapshot.slice(lastFlushedIndex) every 5 seconds and immediately on
+// session end."
+const FLUSH_INTERVAL_MS = 5000;
+
+function sessionStorageKey(interviewId: string): string {
+  return `interview:${interviewId}:transcript`;
+}
+
+interface PersistedTranscript {
+  lines: TranscriptLine[];
+  lastFlushedIndex: number;
+}
+
+// Mirrors the transcript snapshot and lastFlushedIndex into sessionStorage
+// keyed by interview id, so a refresh mid-session does not lose unflushed
+// lines (frontend.md, "Transcript buffering"). sessionStorage can throw
+// (private browsing, quota) — this is a convenience mirror, never load
+// bearing, so failures are swallowed.
+function persistTranscript(interviewId: string, snapshot: PersistedTranscript): void {
+  try {
+    sessionStorage.setItem(sessionStorageKey(interviewId), JSON.stringify(snapshot));
+  } catch {
+    // best effort
+  }
+}
+
+function restoreTranscript(interviewId: string): PersistedTranscript | null {
+  try {
+    const raw = sessionStorage.getItem(sessionStorageKey(interviewId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedTranscript;
+    if (!Array.isArray(parsed.lines) || typeof parsed.lastFlushedIndex !== 'number') return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function clearPersistedTranscript(interviewId: string): void {
+  try {
+    sessionStorage.removeItem(sessionStorageKey(interviewId));
+  } catch {
+    // best effort
+  }
+}
 
 function isMicDenied(err: unknown): boolean {
   if (typeof DOMException !== 'undefined' && err instanceof DOMException) {
@@ -86,6 +133,12 @@ export interface UseAnamSessionResult {
    * frontend.md's minimal signature, but the live room's meta strip needs
    * the real server-clamped value rather than a guess. */
   timeLimitSecs: number | null;
+  /** The current partial caption from MESSAGE_STREAM_EVENT_RECEIVED, for the
+   * "live caption under video" (frontend.md, "Transcript buffering"). Never
+   * persisted or included in a flush — superseded by the next history
+   * snapshot. Not part of frontend.md's minimal signature, added the same
+   * way timeLimitSecs was. */
+  caption: string | null;
   start: () => Promise<void>;
   skipQuestion: () => void;
   end: (reason: 'user' | 'timeout' | 'unload') => Promise<void>;
@@ -98,6 +151,7 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const [timeLimitSecs, setTimeLimitSecs] = useState<number | null>(null);
+  const [caption, setCaption] = useState<string | null>(null);
 
   const stateRef = useRef<SessionState>('idle');
   const clientRef = useRef<AnamClientLike | null>(null);
@@ -105,6 +159,9 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
   const endingRef = useRef(false);
   const mountedRef = useRef(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const flushTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const transcriptRef = useRef<TranscriptLine[]>([]);
+  const lastFlushedIndexRef = useRef(0);
 
   useEffect(() => {
     stateRef.current = state;
@@ -116,6 +173,63 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
       timerRef.current = null;
     }
   }, []);
+
+  const clearFlushTimer = useCallback(() => {
+    if (flushTimerRef.current !== null) {
+      clearInterval(flushTimerRef.current);
+      flushTimerRef.current = null;
+    }
+  }, []);
+
+  // Flushes snapshot.slice(lastFlushedIndex) — never the whole history — and
+  // only advances the marker on success. On failure the marker is left
+  // alone, so the next periodic tick (or the final flush in `end()`) retries
+  // the exact same slice: re-sending an already-stored range is harmless,
+  // the server dedupes/upserts on (interviewId, sequence). See frontend.md,
+  // "Transcript buffering".
+  const flush = useCallback(
+    async (options?: { useBeacon?: boolean }) => {
+      const lines = transcriptRef.current;
+      const from = lastFlushedIndexRef.current;
+      if (from >= lines.length) return;
+      const toSend = lines.slice(from);
+
+      if (options?.useBeacon) {
+        // beforeunload/pagehide: a normal fetch would be cancelled by the
+        // navigation, so this is fire-and-forget with no confirmation of
+        // receipt — optimistically advance the marker regardless.
+        if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+          navigator.sendBeacon(
+            `${API_BASE}/api/interviews/${interviewId}/messages`,
+            new Blob([JSON.stringify({ messages: toSend })], { type: 'application/json' }),
+          );
+        }
+        lastFlushedIndexRef.current = lines.length;
+        return;
+      }
+
+      try {
+        await appendMessages(interviewId, toSend);
+        lastFlushedIndexRef.current = lines.length;
+        persistTranscript(interviewId, { lines, lastFlushedIndex: lastFlushedIndexRef.current });
+      } catch {
+        // Left unflushed on purpose — retried on the next tick.
+      }
+    },
+    [interviewId],
+  );
+
+  const flushRef = useRef(flush);
+  useEffect(() => {
+    flushRef.current = flush;
+  }, [flush]);
+
+  const startFlushTimer = useCallback(() => {
+    clearFlushTimer();
+    flushTimerRef.current = setInterval(() => {
+      void flushRef.current();
+    }, FLUSH_INTERVAL_MS);
+  }, [clearFlushTimer]);
 
   // Every teardown path — End clicked, timer zero, unmount, beforeunload,
   // pagehide, route change (App Router unmounts this component on
@@ -130,6 +244,7 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
       stateRef.current = 'ending';
       if (mountedRef.current) setState('ending');
       clearTimer();
+      clearFlushTimer();
 
       const client = clientRef.current;
       clientRef.current = null;
@@ -141,6 +256,25 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
         // guaranteed track stop.
       }
 
+      // architecture.md, "What can go wrong": on unload there is deliberately
+      // NO /complete call — just a best-effort sendBeacon flush, leaving the
+      // interview LIVE so a reload can resume it (restored from
+      // sessionStorage below) and, if the tab really is gone for good, the
+      // server's cron reaper marks it ABANDONED later. /complete only runs
+      // for a real end: the user clicking End, or the timer hitting zero.
+      if (reason === 'unload') {
+        void flushRef.current({ useBeacon: true });
+      } else {
+        try {
+          await flushRef.current();
+          await completeInterview(interviewId);
+          clearPersistedTranscript(interviewId);
+        } catch {
+          // The session already ended client-side either way; a failed
+          // complete/flush here does not block the UI from showing "ended".
+        }
+      }
+
       stateRef.current = 'ended';
       if (mountedRef.current) {
         if (reason === 'timeout') setError(ERROR_MESSAGES.timesUp);
@@ -148,7 +282,7 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
       }
       endingRef.current = false;
     },
-    [clearTimer],
+    [clearTimer, clearFlushTimer, interviewId],
   );
 
   const endRef = useRef(end);
@@ -212,21 +346,27 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
         // Countdown starts here, not on streamToVideoElement resolving, so
         // connection time is not billed against the candidate's 3 minutes.
         startCountdown(limitSecs);
+        // Flush cadence also starts here — connection time buys no extra
+        // flushes, matching the countdown's own start signal.
+        startFlushTimer();
       }) as never);
 
       client.addListener(AnamEventNames.MESSAGE_HISTORY_UPDATED, ((...args: unknown[]) => {
         const messages = args[0] as AnamMessage[];
         const lines = toTranscript(messages);
+        transcriptRef.current = lines;
+        persistTranscript(interviewId, { lines, lastFlushedIndex: lastFlushedIndexRef.current });
         if (!mountedRef.current) return;
         setTranscript(lines);
         setQuestionsAnswered(countQuestionsAnswered(lines));
       }) as never);
 
-      client.addListener(AnamEventNames.MESSAGE_STREAM_EVENT_RECEIVED, (() => {
+      client.addListener(AnamEventNames.MESSAGE_STREAM_EVENT_RECEIVED, ((...args: unknown[]) => {
         // Partial captions are never persisted (frontend.md, "Transcript
-        // buffering"): they are superseded by the next history snapshot.
-        // Phase 7 wires this into the live caption under the video;
-        // gate:6 does not assert on it.
+        // buffering") and never flow into transcriptRef/flush — they are
+        // superseded by the next full MESSAGE_HISTORY_UPDATED snapshot.
+        const partial = args[0] as { content?: string } | undefined;
+        if (mountedRef.current) setCaption(partial?.content ?? null);
       }) as never);
 
       await client.streamToVideoElement(VIDEO_ELEMENT_ID);
@@ -249,7 +389,7 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
     } finally {
       startingRef.current = false;
     }
-  }, [interviewId, startCountdown]);
+  }, [interviewId, startCountdown, startFlushTimer]);
 
   const skipQuestion = useCallback(() => {
     if (stateRef.current !== 'live') return;
@@ -260,6 +400,22 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
 
   useEffect(() => {
     mountedRef.current = true;
+
+    // Restores unflushed lines from a previous mount of this same interview
+    // (e.g. a page reload mid-session) so they are not lost — the SDK
+    // connection itself cannot be resumed across a reload, but the buffered
+    // transcript and its flush progress can. frontend.md, "Transcript
+    // buffering"; testing.md gate:7.
+    const restored = restoreTranscript(interviewId);
+    if (restored) {
+      transcriptRef.current = restored.lines;
+      lastFlushedIndexRef.current = restored.lastFlushedIndex;
+      setTranscript(restored.lines);
+      setQuestionsAnswered(countQuestionsAnswered(restored.lines));
+      if (restored.lastFlushedIndex < restored.lines.length) {
+        void flushRef.current();
+      }
+    }
 
     function handleUnload() {
       void endRef.current('unload');
@@ -273,7 +429,7 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
       window.removeEventListener('pagehide', handleUnload);
       void endRef.current('unload');
     };
-  }, []);
+  }, [interviewId]);
 
   return {
     state,
@@ -282,6 +438,7 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
     transcript,
     questionsAnswered,
     timeLimitSecs,
+    caption,
     start,
     skipQuestion,
     end,

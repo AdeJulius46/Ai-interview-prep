@@ -17,6 +17,7 @@ export type {
   InterviewSummaryDto,
   SessionTokenResponse,
   TranscriptLine,
+  AppendMessagesResult,
   FeedbackDto,
   ProgressDto,
   ApiErrorCode,
@@ -25,12 +26,15 @@ export type {
 
 import {
   ApiErrorBodySchema,
+  AppendMessagesResultSchema,
   InterviewDtoSchema,
   SessionTokenResponseSchema,
   type ApiErrorBody,
+  type AppendMessagesResult,
   type CreateInterviewInput,
   type InterviewDto,
   type SessionTokenResponse,
+  type TranscriptLine,
 } from '@coach/contracts';
 
 export { ApiErrorBodySchema };
@@ -86,4 +90,45 @@ export async function startSession(interviewId: string): Promise<SessionTokenRes
   });
   if (!res.ok) throw await toApiError(res);
   return SessionTokenResponseSchema.parse(await res.json());
+}
+
+/**
+ * Flushes a batch of transcript lines to `/interviews/:id/messages`. See
+ * frontend.md, "Transcript buffering": callers send
+ * `snapshot.slice(lastFlushedIndex)`, never the whole history, and the
+ * server dedupes/upserts on `(interviewId, sequence)` so a retried flush of
+ * an already-stored range is harmless.
+ */
+export async function appendMessages(
+  interviewId: string,
+  messages: TranscriptLine[],
+): Promise<AppendMessagesResult> {
+  const res = await fetch(`${API_BASE}/api/interviews/${interviewId}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages }),
+  });
+  if (!res.ok) throw await toApiError(res);
+  return AppendMessagesResultSchema.parse(await res.json());
+}
+
+/**
+ * POSTs `/interviews/:id/complete` once the session has ended. Uses
+ * `navigator.sendBeacon` when available and `useBeacon` is set (the
+ * `beforeunload`/`pagehide` path, where a normal `fetch` would be
+ * cancelled — frontend.md, "Teardown"); otherwise a normal `fetch`, so the
+ * caller can await the response and know reconciliation has run.
+ */
+export async function completeInterview(
+  interviewId: string,
+  options?: { useBeacon?: boolean },
+): Promise<InterviewDto | null> {
+  const url = `${API_BASE}/api/interviews/${interviewId}/complete`;
+  if (options?.useBeacon && typeof navigator !== 'undefined' && navigator.sendBeacon) {
+    navigator.sendBeacon(url, new Blob([], { type: 'application/json' }));
+    return null;
+  }
+  const res = await fetch(url, { method: 'POST' });
+  if (!res.ok) throw await toApiError(res);
+  return InterviewDtoSchema.parse(await res.json());
 }

@@ -48,6 +48,36 @@ async function installAnamMock(page: Page): Promise<void> {
   await page.addInitScript(() => {
     (window as unknown as { __ANAM_MOCK__: boolean }).__ANAM_MOCK__ = true;
   });
+  // useAnamSession's end() flushes the transcript and calls /complete
+  // (Phase 7). None of gate:6's assertions are about persistence, so these
+  // are stubbed with an always-succeeds response purely to keep this spec
+  // free of any live apps/api dependency, per this file's header comment.
+  await page.route(`**/api/interviews/${INTERVIEW_ID}/messages`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ accepted: 0, skipped: 0 }),
+    });
+  });
+  await page.route(`**/api/interviews/${INTERVIEW_ID}/complete`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: INTERVIEW_ID,
+        role: 'Frontend Engineer',
+        seniority: 'MID',
+        competencies: ['OWNERSHIP'],
+        questionCount: 3,
+        timeLimitSecs: 180,
+        interviewerName: 'John',
+        status: 'COMPLETED',
+        createdAt: new Date().toISOString(),
+        startedAt: new Date().toISOString(),
+        endedAt: new Date().toISOString(),
+      }),
+    });
+  });
 }
 
 test.describe('Live room (/interview/[id])', () => {

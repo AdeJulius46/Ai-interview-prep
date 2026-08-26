@@ -13,5 +13,11 @@ export default async function InterviewPage({
 }) {
   const { id } = await params;
 
-  return <LiveRoom interviewId={id} />;
+  // `key={id}` forces a full remount when navigating client-side between
+  // two different interviews (App Router reuses a component instance
+  // across dynamic-segment changes otherwise), so useAnamSession's refs
+  // (transcript buffer, lastFlushedIndex, ...) never leak from one
+  // interview's session into another's. See testing.md gate:7: "Two
+  // interviews run in sequence produce two separate stored transcripts."
+  return <LiveRoom key={id} interviewId={id} />;
 }

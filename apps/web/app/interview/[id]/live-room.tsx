@@ -69,6 +69,7 @@ export default function LiveRoom({ interviewId }: LiveRoomProps) {
     transcript,
     questionsAnswered,
     timeLimitSecs,
+    caption,
     start,
     skipQuestion,
     end,
@@ -108,6 +109,11 @@ export default function LiveRoom({ interviewId }: LiveRoomProps) {
           />
 
           <VideoStage id={VIDEO_ELEMENT_ID} state={state} aria-label="Interviewer video stream" />
+          {caption ? (
+            <p aria-live="polite" className="mt-2 truncate text-sm text-ink-muted">
+              {caption}
+            </p>
+          ) : null}
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <Button
