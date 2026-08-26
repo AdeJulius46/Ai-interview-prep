@@ -13,6 +13,12 @@ export const EnvSchema = z.object({
   ANAM_VOICE_ID: z.string().min(1, 'ANAM_VOICE_ID is required'),
   ANAM_LLM_ID: z.string().min(1, 'ANAM_LLM_ID is required'),
   SESSION_TIME_LIMIT_SECONDS: z.coerce.number().int().positive().default(180),
+  // Backoff schedule for retrying Anam's (unverified) post-session transcript
+  // endpoint from TranscriptService — backend.md: "retry with backoff (3
+  // attempts, 1s/3s/7s) and degrade gracefully". Overridable in .env.test so
+  // the gate:7 backoff/degrade tests don't burn ~11s of real wall-clock time
+  // per test while still exercising a real multi-attempt retry loop.
+  ANAM_TRANSCRIPT_RETRY_DELAYS_MS: z.string().default('1000,3000,7000'),
   ANTHROPIC_API_KEY: z.string().min(1, 'ANTHROPIC_API_KEY is required'),
   WEB_ORIGIN: z.string().url('WEB_ORIGIN must be a valid URL'),
   PORT: z.coerce.number().int().positive().default(8080),

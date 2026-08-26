@@ -63,3 +63,42 @@ export function anam500Handler() {
 }
 
 export { FIXTURE_SESSION_TOKEN, FIXTURE_SESSION_ID };
+
+// Handlers for AnamService#getSessionTranscript (the unverified post-session
+// transcript endpoint — see README.md and backend.md). Used by
+// transcript.e2e-spec.ts to exercise TranscriptService's retry/backoff and
+// degrade-gracefully paths (gate:7) without ever hitting a real network.
+export interface AnamTranscriptLineFixture {
+  role: 'user' | 'assistant';
+  content: string;
+  spokenAt?: string;
+}
+
+export function transcriptSuccessHandler(lines: AnamTranscriptLineFixture[]) {
+  return http.get('https://api.anam.ai/v1/sessions/:sessionId/transcript', () => {
+    return HttpResponse.json(lines, { status: 200 });
+  });
+}
+
+export function transcriptAlwaysFailHandler() {
+  return http.get('https://api.anam.ai/v1/sessions/:sessionId/transcript', () => {
+    return HttpResponse.json({ error: 'not_found' }, { status: 404 });
+  });
+}
+
+// Fails with 404 on the first `failCount` requests, then returns `lines`.
+// Proves TranscriptService's backoff actually retries rather than giving up
+// on the first failure.
+export function transcriptFailThenSucceedHandler(
+  failCount: number,
+  lines: AnamTranscriptLineFixture[],
+) {
+  let calls = 0;
+  return http.get('https://api.anam.ai/v1/sessions/:sessionId/transcript', () => {
+    calls += 1;
+    if (calls <= failCount) {
+      return HttpResponse.json({ error: 'not_ready' }, { status: 404 });
+    }
+    return HttpResponse.json(lines, { status: 200 });
+  });
+}

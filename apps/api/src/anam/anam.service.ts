@@ -60,15 +60,60 @@ export class AnamService {
   }
 
   // Unverified endpoint (README.md, "Not verified, confirm before
-  // implementing"). Kept behind this interface so that when the real path
-  // and shape are confirmed in Phase 7, only this method changes — the
-  // reconciliation step elsewhere degrades to a no-op until then.
-  async getSessionTranscript(_sessionId: string): Promise<AnamTranscriptLine[]> {
-    throw new Error(
-      'AnamService#getSessionTranscript is not implemented yet. The Anam post-session ' +
-        'transcript endpoint is unverified (see README.md); confirm it against ' +
-        'https://api.anam.ai/swagger.json before implementing in Phase 7.',
-    );
+  // implementing"): the path/shape below have not been confirmed against
+  // https://api.anam.ai/swagger.json. Kept behind this interface so that
+  // confirming the real endpoint is a one-file change. This method is a
+  // single attempt with its own timeout — it throws on any failure (4xx,
+  // 5xx, timeout, malformed body) and lets the caller (TranscriptService)
+  // own the "not ready yet" business-level retry/backoff described in
+  // backend.md's POST /complete section, since that's a different concern
+  // than this class's own network-resilience retry on createSessionToken.
+  async getSessionTranscript(sessionId: string): Promise<AnamTranscriptLine[]> {
+    const base = this.configService.get<string>('ANAM_API_BASE');
+    const apiKey = this.configService.get<string>('ANAM_API_KEY');
+    const url = `${base}/sessions/${sessionId}/transcript`;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${apiKey}` },
+        signal: controller.signal,
+      });
+    } catch (err) {
+      this.logger.warn(redact(`Anam transcript request failed: ${String(err)}`));
+      throw err;
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    if (!response.ok) {
+      throw new Error(`Anam transcript request failed with status ${response.status}`);
+    }
+
+    let data: unknown;
+    try {
+      data = await response.json();
+    } catch (err) {
+      throw new Error(`Anam transcript response was not valid JSON: ${String(err)}`);
+    }
+
+    if (!Array.isArray(data)) {
+      throw new Error('Anam transcript response was not an array');
+    }
+
+    return data.map((line) => {
+      const record = line as Record<string, unknown>;
+      const role = record.role ?? record.speaker;
+      return {
+        speaker: role === 'user' || role === 'CANDIDATE' ? 'CANDIDATE' : 'INTERVIEWER',
+        content: String(record.content ?? ''),
+        spokenAt:
+          typeof record.spokenAt === 'string' ? record.spokenAt : new Date().toISOString(),
+      };
+    });
   }
 
   private async fetchWithTimeout(

@@ -4,6 +4,7 @@
 export const ApiErrorCodeSchema = z.enum([
   'InterviewNotFound',
   'InterviewAlreadyStarted',
+  'InterviewAlreadyCompleted',
   'InterviewNotCompleted',
   'TranscriptTooShort',
   'AnamUnavailable',

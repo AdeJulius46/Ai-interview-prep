@@ -32,3 +32,9 @@ export class AnamUnavailableException extends ApiException {
     super(502, 'AnamUnavailable', 'Could not start the interview session. Try again.');
   }
 }
+
+export class InterviewAlreadyCompletedException extends ApiException {
+  constructor() {
+    super(409, 'InterviewAlreadyCompleted', 'This interview has already ended.');
+  }
+}
