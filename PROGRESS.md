@@ -7,9 +7,9 @@ place to check status, not the chat scrollback.
 - [x] **Phase 0** — Workspace, Docker Postgres, Prisma migrated, both apps boot — `gate:0` — commit `281ab85`
 - [x] **Phase 1** — `packages/contracts` types + Zod schemas, both apps import them — `gate:1` — commit `31fb880`
 - [x] **Phase 2** — Interview setup persisted, question bank seeded, per-session question selection varies — `gate:2` — commit `c798d5a`
-- [x] **Phase 3** — Session token endpoint, Anam call mocked in tests, key never leaks — `gate:3` — commit `46ef714` (verified green in isolation; full chained `pnpm gate:3` re-check pending Phase 4 landing, since `gate:0`'s repo-wide typecheck step touches `packages/ui`)
-- [ ] **Phase 4** — `packages/ui` primitives with visual snapshot coverage — `gate:4` — in progress, not yet committed
-- [ ] **Phase 5** — Setup screen wired to phase 2 — `gate:5`
+- [x] **Phase 3** — Session token endpoint, Anam call mocked in tests, key never leaks — `gate:3` — commit `46ef714`, full chain re-confirmed green
+- [x] **Phase 4** — `packages/ui` primitives with visual snapshot coverage — `gate:4` — commit `0ebc297`
+- [ ] **Phase 5** — Setup screen wired to phase 2 — `gate:5` — in progress
 - [ ] **Phase 6** — Live room streams avatar, timer enforces limit, teardown is clean — `gate:6`
 - [ ] **Phase 7** — Transcript captured, flushed to API, reconciled on complete — `gate:7`
 - [ ] **Phase 8** — STAR feedback report generated and persisted — `gate:8`
