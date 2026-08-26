@@ -1,8 +1,11 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // packages/contracts is added here in Phase 1 once apps/web imports it.
+  // Both apps depend on @coach/contracts as "workspace:*"; Next.js needs it
+  // listed here so its dist/ output is transpiled through Next's own
+  // pipeline rather than treated as pre-built, opaque node_modules code.
   // See shared.md, "Build config".
+  transpilePackages: ['@coach/contracts'],
 };
 
 export default nextConfig;

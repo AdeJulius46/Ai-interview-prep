@@ -7,5 +7,6 @@
   "testMatch": ["<rootDir>/**/*.e2e-spec.ts"],
   "testPathIgnorePatterns": ["<rootDir>/boot"],
   "moduleFileExtensions": ["js", "json", "ts"],
+  "transformIgnorePatterns": ["/node_modules/", "/dist-cjs/", "/dist/"],
   "testTimeout": 20000
 }
