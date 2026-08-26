@@ -38,3 +38,21 @@ export class InterviewAlreadyCompletedException extends ApiException {
     super(409, 'InterviewAlreadyCompleted', 'This interview has already ended.');
   }
 }
+
+export class InterviewNotCompletedException extends ApiException {
+  constructor() {
+    super(409, 'InterviewNotCompleted', 'End the interview before requesting a report.');
+  }
+}
+
+export class TranscriptTooShortException extends ApiException {
+  constructor() {
+    super(409, 'TranscriptTooShort', 'Answer at least two questions to get a report.');
+  }
+}
+
+export class ScoringFailedException extends ApiException {
+  constructor() {
+    super(502, 'ScoringFailed', 'Could not generate your report. Try again.');
+  }
+}

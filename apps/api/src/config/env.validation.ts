@@ -20,6 +20,7 @@ export const EnvSchema = z.object({
   // per test while still exercising a real multi-attempt retry loop.
   ANAM_TRANSCRIPT_RETRY_DELAYS_MS: z.string().default('1000,3000,7000'),
   ANTHROPIC_API_KEY: z.string().min(1, 'ANTHROPIC_API_KEY is required'),
+  ANTHROPIC_MODEL: z.string().default('claude-sonnet-4-6'),
   WEB_ORIGIN: z.string().url('WEB_ORIGIN must be a valid URL'),
   PORT: z.coerce.number().int().positive().default(8080),
   NODE_ENV: z
