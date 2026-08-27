@@ -124,7 +124,13 @@ export class FeedbackService {
         answers: {
           create: output.result.answers.map((answer) => ({
             questionIndex: answer.questionIndex,
-            question: answer.question,
+            // The model's own echo of the question is trusted only as a
+            // fallback: a weaker model can paraphrase it instead of
+            // copying it verbatim (observed in manual testing with a
+            // small free model), and we already know the real text
+            // authoritatively from scoringSegments — no reason to let the
+            // model's phrasing win.
+            question: scoringSegments[answer.questionIndex]?.question ?? answer.question,
             answerSummary: answer.answerSummary,
             hasSituation: answer.hasSituation,
             hasTask: answer.hasTask,
