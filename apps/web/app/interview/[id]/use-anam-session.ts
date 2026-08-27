@@ -41,6 +41,30 @@ const QUESTION_MARKER = /\bQuestion (one|two|three|four|five)\b/i;
 // session end."
 const FLUSH_INTERVAL_MS = 5000;
 
+// Real network/SDK calls can hang in ways the mock never does (the mock's
+// stopStreaming resolves instantly; a real WebRTC teardown or a slow
+// backend call is under no such guarantee). Teardown must never leave the
+// candidate stuck on a spinner indefinitely, so every step in end() races
+// against a bound — on timeout we just move on, same as any other failure
+// there: the session is over either way.
+const TEARDOWN_STEP_TIMEOUT_MS = 8000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | undefined> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(undefined), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(undefined);
+      },
+    );
+  });
+}
+
 function sessionStorageKey(interviewId: string): string {
   return `interview:${interviewId}:transcript`;
 }
@@ -100,6 +124,22 @@ function isApiErrorBody(err: unknown): err is { message: string } {
     typeof err === 'object' &&
     err !== null &&
     'message' in err &&
+    typeof (err as { message?: unknown }).message === 'string'
+  );
+}
+
+/** The real `@anam-ai/js-sdk`'s `ClientError` (thrown when its own
+ * `POST engine/session` call, made client-side with just the session
+ * token, fails) wraps a generic message ("Invalid request to start
+ * session") around the actual server-side reason in `details.cause`. Left
+ * unhandled, `isApiErrorBody` below would still match it (any Error has a
+ * string `.message`) but show only the unhelpful generic wrapper —
+ * checked first so the specific cause reaches the user instead. */
+function isAnamClientError(err: unknown): err is { message: string; details?: { cause?: string } } {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    (err as { name?: unknown }).name === 'ClientError' &&
     typeof (err as { message?: unknown }).message === 'string'
   );
 }
@@ -248,12 +288,14 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
 
       const client = clientRef.current;
       clientRef.current = null;
-      try {
-        await client?.stopStreaming();
-      } catch {
-        // Teardown must never throw past this point: the session is over
-        // either way, and surfacing this error is less useful than a
-        // guaranteed track stop.
+      if (client) {
+        // Timeout, not just try/catch: a real stopStreaming() that never
+        // settles (unlike the mock, which always resolves instantly) must
+        // not leave the candidate stuck on this screen forever.
+        await withTimeout(
+          Promise.resolve(client.stopStreaming()).catch(() => undefined),
+          TEARDOWN_STEP_TIMEOUT_MS,
+        );
       }
 
       // architecture.md, "What can go wrong": on unload there is deliberately
@@ -265,14 +307,14 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
       if (reason === 'unload') {
         void flushRef.current({ useBeacon: true });
       } else {
-        try {
-          await flushRef.current();
-          await completeInterview(interviewId);
-          clearPersistedTranscript(interviewId);
-        } catch {
-          // The session already ended client-side either way; a failed
-          // complete/flush here does not block the UI from showing "ended".
-        }
+        await withTimeout(
+          flushRef
+            .current()
+            .then(() => completeInterview(interviewId))
+            .then(() => clearPersistedTranscript(interviewId))
+            .catch(() => undefined),
+          TEARDOWN_STEP_TIMEOUT_MS,
+        );
       }
 
       stateRef.current = 'ended';
@@ -379,6 +421,8 @@ export function useAnamSession(interviewId: string): UseAnamSessionResult {
       if (mountedRef.current) {
         if (isMicDenied(err)) {
           setError(ERROR_MESSAGES.micDenied);
+        } else if (isAnamClientError(err)) {
+          setError(err.details?.cause ? `${err.message}: ${err.details.cause}` : err.message);
         } else if (isApiErrorBody(err)) {
           setError(err.message);
         } else {
