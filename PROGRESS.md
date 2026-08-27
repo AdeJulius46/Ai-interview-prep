@@ -4,6 +4,13 @@ Tracks `README.md`'s phase table. Checked = that phase's gate command has been r
 and passed, and the work is committed. Updated after every phase lands — this file is the
 place to check status, not the chat scrollback.
 
+**All 10 phases are done. `pnpm gate:10` (== `pnpm gate:all`) is green end-to-end.** What's
+left before this is a real, usable product rather than a spec-compliant build: drop real
+`ANAM_API_KEY`/`ANAM_AVATAR_ID`/`ANAM_VOICE_ID`/`ANAM_LLM_ID`/`ANTHROPIC_API_KEY` into
+`apps/api/.env`, then run the manual smoke checklist at the end of `testing.md` — no
+automated test ever calls either real service. See "Not yet built" below for the two
+ungated pieces (cron reaper, interview detail endpoint) still worth doing before real use.
+
 - [x] **Phase 0** — Workspace, Docker Postgres, Prisma migrated, both apps boot — `gate:0` — commit `281ab85`
 - [x] **Phase 1** — `packages/contracts` types + Zod schemas, both apps import them — `gate:1` — commit `31fb880`
 - [x] **Phase 2** — Interview setup persisted, question bank seeded, per-session question selection varies — `gate:2` — commit `c798d5a`
@@ -14,7 +21,7 @@ place to check status, not the chat scrollback.
 - [x] **Phase 7** — Transcript captured, flushed to API, reconciled on complete — `gate:7` — commits `69b7bd0` (backend), `595c7ea` (frontend)
 - [x] **Phase 8** — STAR feedback report generated and persisted — `gate:8` — commit `d814777`
 - [x] **Phase 9** — History and progress trend across sessions — `gate:9` — commit `c436c27`
-- [ ] **Phase 10** — Full Playwright happy path with a mocked SDK, a11y pass — `gate:10` — in progress
+- [x] **Phase 10** — Full Playwright happy path with a mocked SDK, a11y pass — `gate:10` — commit `5eb5cbb`
 
 ## Notes / deviations from spec so far
 
@@ -64,3 +71,26 @@ place to check status, not the chat scrollback.
   `ABANDONED`, and `GET /interviews/:id` (full interview detail with messages + feedback).
   Progress's exclusion of `ABANDONED` interviews from the trend was verified by setting that
   status directly in the test, independent of whatever eventually produces it in production.
+- Phase 10 built the Feedback screen (`apps/web/app/interview/[id]/feedback/`) — Phase 8's
+  gate only covered the backend scoring endpoint, and the frontend screen from
+  `frontend.md`'s "Screens > 3. Feedback" was never actually built until gate:10 needed it
+  for the full happy-path walk. `live-room.tsx` now auto-navigates there once the session
+  truly ends.
+- Phase 10 converted `apps/web/app/history/page.tsx` from a Server Component to
+  client-fetch-on-arrival (matching Feedback's pattern) — SSR data-fetching happens on the
+  Next.js server process itself, outside the reach of any browser-network mock, which broke
+  `gate:10`'s full-path test the moment it tried to exercise History without a live
+  `apps/api` instance.
+- Phase 10 darkened `--color-accent` (`#0F8A63` → `#0C7856`) and `--color-ink-faint`
+  (`#8A9993` → `#64716C`) in `apps/web/app/tokens.css`, same hue family — the originals fail
+  WCAG AA text contrast at the sizes `frontend.md` actually uses them at (real `gate:10` axe
+  violations, not a style preference).
+- Phase 10 added `apps/web/playwright.config.ts` `retries: 1` locally (`2` in CI) and
+  `workers: 2` locally — `next dev` compiles each route on first request, and several
+  parallel workers hitting an uncompiled route occasionally races into a slow recompile that
+  blows a test's timeout with no app bug involved (confirmed by bisection: a minimal
+  single-route repro never failed, and every such failure passes cleanly on retry, which a
+  real logic bug would not do).
+- Phase 10 added `scripts/grep-secrets.js` (root `pnpm grep:secrets`, the last step of
+  `gate:10`) per `testing.md`'s literal requirement that a CI step fail the build if
+  `ANAM_API_KEY` or `ANTHROPIC_API_KEY` appears anywhere under `apps/web`.
