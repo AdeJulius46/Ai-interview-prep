@@ -28,6 +28,7 @@ export type {
 import {
   ApiErrorBodySchema,
   AppendMessagesResultSchema,
+  FeedbackDtoSchema,
   HistoryPageDtoSchema,
   InterviewDtoSchema,
   ProgressDtoSchema,
@@ -35,6 +36,7 @@ import {
   type ApiErrorBody,
   type AppendMessagesResult,
   type CreateInterviewInput,
+  type FeedbackDto,
   type HistoryPageDto,
   type InterviewDto,
   type ProgressDto,
@@ -143,15 +145,21 @@ export async function completeInterview(
  * backend.md, "History list" — `nextCursor` is `null` once there is no
  * further page.
  */
+const DEFAULT_HISTORY_LIMIT = 20;
+
 export async function getHistory(options?: {
   limit?: number;
   cursor?: string;
 }): Promise<HistoryPageDto> {
+  // Always sends an explicit limit (backend.md's own default), so the
+  // request URL always carries a query string — GET /interviews and POST
+  // /interviews never differ only by an optional "?", which would
+  // otherwise make them ambiguous to distinguish when mocking the network
+  // in tests.
   const params = new URLSearchParams();
-  if (options?.limit) params.set('limit', String(options.limit));
+  params.set('limit', String(options?.limit ?? DEFAULT_HISTORY_LIMIT));
   if (options?.cursor) params.set('cursor', options.cursor);
-  const query = params.toString();
-  const res = await fetch(`${API_BASE}/api/interviews${query ? `?${query}` : ''}`, {
+  const res = await fetch(`${API_BASE}/api/interviews?${params.toString()}`, {
     cache: 'no-store',
   });
   if (!res.ok) throw await toApiError(res);
@@ -166,4 +174,20 @@ export async function getProgress(): Promise<ProgressDto> {
   const res = await fetch(`${API_BASE}/api/progress`, { cache: 'no-store' });
   if (!res.ok) throw await toApiError(res);
   return ProgressDtoSchema.parse(await res.json());
+}
+
+/**
+ * POSTs `/interviews/:id/feedback`. Idempotent server-side (backend.md:
+ * "if Feedback already exists, return it rather than re-billing the LLM"),
+ * so the feedback screen can call this on arrival with no separate
+ * "has it already been generated" check of its own — frontend.md,
+ * "Screens > 3. Feedback": "generate on arrival rather than making the
+ * user press a button."
+ */
+export async function generateFeedback(interviewId: string): Promise<FeedbackDto> {
+  const res = await fetch(`${API_BASE}/api/interviews/${interviewId}/feedback`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw await toApiError(res);
+  return FeedbackDtoSchema.parse(await res.json());
 }

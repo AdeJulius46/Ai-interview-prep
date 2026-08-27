@@ -4,6 +4,8 @@
 // and its visual specification — this is the screen in the supplied
 // screenshot. All state lives in `useAnamSession`; this component is purely
 // presentational wiring on top of it and the `app/ui` primitives.
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Button,
   Card,
@@ -62,6 +64,7 @@ export interface LiveRoomProps {
 }
 
 export default function LiveRoom({ interviewId }: LiveRoomProps) {
+  const router = useRouter();
   const {
     state,
     error,
@@ -74,6 +77,17 @@ export default function LiveRoom({ interviewId }: LiveRoomProps) {
     skipQuestion,
     end,
   } = useAnamSession(interviewId);
+
+  // architecture.md diagram 2: after teardown + the final flush + /complete,
+  // the candidate lands on the STAR report automatically — no separate
+  // click. `state === 'ended'` covers the End button, the timer hitting
+  // zero, and (harmlessly, since the tab is already unloading) the unload
+  // path too.
+  useEffect(() => {
+    if (state === 'ended') {
+      router.push(`/interview/${interviewId}/feedback`);
+    }
+  }, [state, interviewId, router]);
 
   // Button availability by state — frontend.md's control-availability
   // table, verbatim. Never let Start be clickable twice.

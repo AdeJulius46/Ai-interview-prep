@@ -6,8 +6,17 @@
   --color-surface: #FFFFFF;
   --color-ink: #111614;
   --color-ink-muted: #5B6B64;
-  --color-ink-faint: #8A9993;
-  --color-accent: #0F8A63;
+  /* frontend.md pins #8A9993; darkened here to #64716C for the same
+     WCAG AA reason as --color-accent above — the original is 2.97:1 on
+     white at the sizes it's actually used at (meta labels, hints),
+     needing 4.5:1. Still clearly the lightest of the three ink tiers. */
+  --color-ink-faint: #64716C;
+  /* frontend.md pins #0F8A63; darkened here to #0C7856 (same hue,
+     imperceptibly different) because the original fails WCAG AA text
+     contrast (4.34:1 on white, needs 4.5:1) at the sizes Eyebrow/Button
+     actually render it at — a real gate:10 a11y violation, not a style
+     preference. See PROGRESS.md's deviation notes. */
+  --color-accent: #0C7856;
   --color-accent-soft: #8FBFA9;
   --color-line: #DCE6E0;
   --color-warn: #B4541F;

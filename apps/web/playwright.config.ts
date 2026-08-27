@@ -11,7 +11,15 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  // Next dev compiles each route on-demand on first request; several
+  // workers hitting a not-yet-compiled route at once (e.g. /history)
+  // occasionally races into a slow recompile ("Fast Refresh had to perform
+  // a full reload") that blows a test's timeout without any app bug
+  // involved. One local retry absorbs that without masking a real,
+  // consistently-reproducing failure — retries never save a genuine logic
+  // bug, only a transient compile stall.
+  retries: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? undefined : 2,
   reporter: 'list',
   use: {
     baseURL: `http://localhost:${PORT}`,
