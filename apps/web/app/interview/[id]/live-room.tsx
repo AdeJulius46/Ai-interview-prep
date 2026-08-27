@@ -32,7 +32,7 @@ import {
 // (backend.md). Neither is asserted on by gate:6. A future GET endpoint
 // should replace both with the real per-interview values.
 const DEFAULT_QUESTION_COUNT = 3;
-const DEFAULT_INTERVIEWER_NAME = 'John';
+const DEFAULT_INTERVIEWER_NAME = 'Hannah';
 const DEFAULT_TIME_LIMIT_SECS = 180;
 
 const STATUS_LABEL: Record<SessionState, string> = {

@@ -51,7 +51,7 @@ model Interview {
   competencies   Competency[]
   questionCount  Int             @default(3)
   timeLimitSecs  Int             @default(180)
-  interviewerName String         @default("John")
+  interviewerName String         @default("Hannah")
 
   // Version of the PROMPT_V1/PROMPT_V2/... constant used to render this
   // interview's persona system prompt. See backend.md, PersonaService:
