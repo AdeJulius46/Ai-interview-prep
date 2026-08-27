@@ -60,7 +60,7 @@ export default function FeedbackPage({ params }: { params: Promise<{ id: string 
           Scoring your answers
         </h1>
         <p role="status" aria-live="polite" className="mt-2 text-sm text-ink-muted">
-          This takes a few seconds.
+          This can take a minute.
         </p>
       </main>
     );
