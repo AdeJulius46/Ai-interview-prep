@@ -17,6 +17,109 @@ Based on Coding Challenges #128.
 | `shared.md` | Shared contracts package (types + Zod) and the UI primitive library. |
 | `testing.md` | Test strategy, tooling, and the exact gate command for every phase. |
 
+## Getting started
+
+Everything below gets you from a fresh clone to a real live interview session on your own
+machine. It takes about 10-15 minutes, most of it waiting on account signups.
+
+### 1. Prerequisites
+
+- [Node.js](https://nodejs.org) 20+
+- [pnpm](https://pnpm.io) (`npm install -g pnpm` if you don't have it)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for Postgres)
+
+### 2. Clone and install
+
+```bash
+git clone https://github.com/AdeJulius46/Ai-interview-prep.git
+cd Ai-interview-prep
+pnpm install
+```
+
+### 3. Get an Anam account and credentials
+
+The live avatar interviewer is powered by [Anam](https://anam.ai) — sign up for a free
+account there (the free tier gives you a few minutes of session time per day, which is
+plenty to try this out).
+
+Once you're in the dashboard, you need **four** values. This is the part people get stuck
+on, so read carefully:
+
+1. **`ANAM_API_KEY`** — under API Keys in your account settings. Keep this secret; it never
+   leaves the server in this app.
+2. **`ANAM_AVATAR_ID`** — from an **Avatars** library/gallery page, not from a saved
+   **Persona**. Anam's dashboard also lets you save a bundled "Persona" (a pre-combined
+   avatar + voice + LLM, e.g. one named after a person), and it's easy to copy that ID by
+   mistake — it *looks* like a normal ID but the API rejects it with `"Invalid entity ID"`
+   / `"this is a persona ID, pass it as personaId instead"`. You want the ID of the avatar
+   itself.
+3. **`ANAM_VOICE_ID`** — same idea, from the Voices section.
+4. **`ANAM_LLM_ID`** — from the LLMs section (this powers Anam's own conversational
+   turn-taking during the live interview — separate from the scoring LLM below).
+
+### 4. Get a scoring LLM key
+
+After the interview ends, a transcript is scored against the STAR framework by a
+swappable LLM. Pick one:
+
+**Option A — Anthropic (Claude).** Get an API key at
+[console.anthropic.com](https://console.anthropic.com). This is a paid API; you'll need
+billing set up.
+
+**Option B — OpenRouter (recommended if you just want to try this for free).** Get a free
+key at [openrouter.ai/settings/keys](https://openrouter.ai/settings/keys), no card
+required for free-tier models. In testing, `liquid/lfm-2.5-2.6b:free` scored a full
+transcript in ~15 seconds with solid STAR-detection quality — set
+`SCORING_PROVIDER=openrouter` and `OPENROUTER_MODEL=liquid/lfm-2.5-2.6b:free` in your
+`.env` (see below). Some other free models on OpenRouter are much slower (a reasoning
+model like `nvidia/nemotron-3.5-lightning:free` can take 60-90s per report) or get
+rate-limited on the shared free pool — if you want to swap models, test one directly
+first: `curl https://openrouter.ai/api/v1/models` lists what's currently free.
+
+You only need ONE of these two, matching whichever `SCORING_PROVIDER` you set.
+
+### 5. Set up your environment files
+
+```bash
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.local.example apps/web/.env.local
+```
+
+Open `apps/api/.env` and fill in the values from steps 3 and 4 (`ANAM_API_KEY`,
+`ANAM_AVATAR_ID`, `ANAM_VOICE_ID`, `ANAM_LLM_ID`, and either `ANTHROPIC_API_KEY` or
+`SCORING_PROVIDER=openrouter` + `OPENROUTER_API_KEY`). `apps/web/.env.local` needs no
+changes for local development.
+
+### 6. Start Postgres, migrate, and seed the question bank
+
+```bash
+docker compose up -d
+pnpm --filter api exec prisma migrate dev
+pnpm --filter api exec prisma db seed
+```
+
+### 7. Run it
+
+```bash
+pnpm --filter api run start:dev    # in one terminal
+pnpm --filter web run dev          # in another
+```
+
+Open [http://localhost:3000](http://localhost:3000), fill out the setup screen, click
+**Start interview**, and allow microphone/camera access when your browser asks.
+
+### Troubleshooting
+
+- **"Invalid request to start session" / "Invalid entity ID"** — almost always the
+  avatar-vs-persona ID mixup from step 3. Double check `ANAM_AVATAR_ID` came from the
+  Avatars page, not a saved Persona.
+- **Setup screen says "Failed to fetch"** — the API server (`apps/api`) isn't running, or
+  Docker's Postgres container isn't up. Check `docker ps` and the terminal running
+  `start:dev`.
+- **Feedback screen stuck on "Scoring your answers"** — check the API server's terminal
+  for the actual error; a slow free scoring model can take up to a minute, which is
+  expected, not stuck.
+
 ## Stack
 
 | Layer | Choice |
@@ -59,11 +162,19 @@ DATABASE_URL=postgresql://coach:coach@localhost:5432/coach
 ANAM_API_KEY=...                 # never exposed to the browser
 ANAM_API_BASE=https://api.anam.ai/v1
 ANAM_AVATAR_MODEL=cara-4-latest
-ANAM_AVATAR_ID=...
+ANAM_AVATAR_ID=...                       # from Anam's Avatars page, not a Persona — see "Getting started"
 ANAM_VOICE_ID=...
 ANAM_LLM_ID=...
 SESSION_TIME_LIMIT_SECONDS=180   # must stay under the free tier's 3 min cap
+ANAM_TRANSCRIPT_RETRY_DELAYS_MS=1000,3000,7000
+
+# Scoring LLM — swappable behind ScoringProvider, pick one:
+SCORING_PROVIDER=anthropic               # or "openrouter"
 ANTHROPIC_API_KEY=...
+ANTHROPIC_MODEL=claude-sonnet-4-6
+OPENROUTER_API_KEY=...                   # only required when SCORING_PROVIDER=openrouter
+OPENROUTER_MODEL=liquid/lfm-2.5-2.6b:free
+
 WEB_ORIGIN=http://localhost:3000
 PORT=8080
 ```
