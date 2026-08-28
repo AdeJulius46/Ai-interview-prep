@@ -27,6 +27,7 @@ export class PersonaService {
       role: interview.role,
       seniority: interview.seniority,
       questions: orderedQuestions,
+      timeLimitSecs: interview.timeLimitSecs,
     });
 
     return {

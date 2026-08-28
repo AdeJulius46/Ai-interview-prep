@@ -65,7 +65,7 @@ describe('POST /api/interviews (interviews.create)', () => {
     expect(res.body.competencies).toEqual(validBody.competencies);
     expect(res.body.questionCount).toBe(validBody.questionCount);
     expect(res.body.status).toBe('CREATED');
-    expect(res.body.interviewerName).toBe('John');
+    expect(res.body.interviewerName).toBe('Hannah');
   });
 
   it('persists the row in Postgres with the right competencies array', async () => {

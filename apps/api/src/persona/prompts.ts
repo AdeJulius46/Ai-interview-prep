@@ -9,6 +9,7 @@ export interface PromptRenderInput {
   role: string;
   seniority: string;
   questions: string[];
+  timeLimitSecs: number;
 }
 
 export interface VersionedPrompt {
@@ -25,8 +26,9 @@ function ordinal(n: number): string {
 
 export const PROMPT_V1: VersionedPrompt = {
   version: 'v1',
-  render({ interviewerName, role, seniority, questions }: PromptRenderInput): string {
+  render({ interviewerName, role, seniority, questions, timeLimitSecs }: PromptRenderInput): string {
     const questionCount = questions.length;
+    const timeLimitMinutes = Math.round(timeLimitSecs / 60);
     const numberedQuestions = questions
       .map((text, i) => `${i + 1}. Question ${ordinal(i + 1)}. ${text}`)
       .join('\n');
@@ -36,8 +38,10 @@ export const PROMPT_V1: VersionedPrompt = {
         ` mock interview for a ${seniority} ${role} candidate.`,
       '',
       `Greeting first. Begin by introducing yourself by name, state that you will ask` +
-        ` ${questionCount} questions today and how the session is timed, then ask question one` +
-        ` without waiting to be prompted. This greeting step belongs to you, not the frontend.`,
+        ` ${questionCount} questions today and that the session is timed to ${timeLimitMinutes}` +
+        ` minute${timeLimitMinutes === 1 ? '' : 's'} — do not state any other duration — then ask` +
+        ` question one without waiting to be prompted. This greeting step belongs to you, not the` +
+        ` frontend.`,
       '',
       'One question at a time. Never list more than one question at once. Never move on to' +
         ' the next question until the current one is resolved.',
