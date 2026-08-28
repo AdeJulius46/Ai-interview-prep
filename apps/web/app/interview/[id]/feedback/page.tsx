@@ -6,22 +6,38 @@
 // refresh after the report already exists.
 import { useEffect, useState } from 'react';
 import { use } from 'react';
-import type { FeedbackDto } from '@coach/contracts';
+import type { ApiErrorBody, FeedbackDto } from '@coach/contracts';
 import { generateFeedback } from '../../../api-client';
-import { Eyebrow } from '../../../ui';
+import { Button, Eyebrow } from '../../../ui';
 import { FeedbackView } from './FeedbackView';
 
 const ERROR_MESSAGE = 'Could not generate your report. Try again.';
+
+// ScoringFailed (502) covers both a malformed model response and the free
+// OpenRouter model exhausting its rate-limit retries (openrouter.provider.ts)
+// — from the frontend these look identical, and in both cases a plain reload
+// (which re-POSTs /feedback) is the right, honest recovery: nothing was
+// persisted on failure, so there's no state to lose or conflict with.
+function isScoringFailed(err: unknown): boolean {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'error' in err &&
+    (err as ApiErrorBody).error === 'ScoringFailed'
+  );
+}
 
 export default function FeedbackPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [feedback, setFeedback] = useState<FeedbackDto | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [scoringFailed, setScoringFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setFeedback(null);
     setError(null);
+    setScoringFailed(false);
 
     generateFeedback(id)
       .then((result) => {
@@ -34,6 +50,7 @@ export default function FeedbackPage({ params }: { params: Promise<{ id: string 
             ? String((err as { message: unknown }).message)
             : ERROR_MESSAGE;
         setError(message);
+        setScoringFailed(isScoringFailed(err));
       });
 
     return () => {
@@ -48,6 +65,21 @@ export default function FeedbackPage({ params }: { params: Promise<{ id: string 
         <p role="alert" className="mt-4 text-sm font-medium text-warn">
           {error}
         </p>
+        {scoringFailed ? (
+          <>
+            <p className="mt-2 text-sm text-ink-muted">
+              The free scoring model is likely rate-limited right now. Your answers were saved —
+              just reload this page to try scoring again.
+            </p>
+            <Button
+              variant="primary"
+              className="mt-4"
+              onClick={() => window.location.reload()}
+            >
+              Reload
+            </Button>
+          </>
+        ) : null}
       </main>
     );
   }
