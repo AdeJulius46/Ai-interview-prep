@@ -14,10 +14,10 @@ export function FeedbackView({ feedback }: FeedbackViewProps) {
   const answers = feedback.answers.slice().sort((a, b) => a.questionIndex - b.questionIndex);
 
   return (
-    <main className="mx-auto max-w-[1120px] px-6 py-12">
+    <main className="mx-auto max-w-[1120px] px-4 py-8 sm:px-6 sm:py-12">
       <Eyebrow>Behavioural interview practice</Eyebrow>
       <div className="mt-2 flex flex-wrap items-baseline justify-between gap-4">
-        <h1 className="text-[36px] font-bold tracking-[-0.02em] text-ink">Your STAR report</h1>
+        <h1 className="text-[28px] font-bold tracking-[-0.02em] text-ink sm:text-[36px]">Your STAR report</h1>
         <div className="flex items-center gap-2">
           <span className="text-xs uppercase tracking-[0.08em] text-ink-faint">Overall</span>
           <ScoreBadge score={feedback.overallScore} />

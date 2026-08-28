@@ -38,9 +38,9 @@ export function HistoryView({ page, progress }: HistoryViewProps) {
   const { trend, starCoverage } = progress;
 
   return (
-    <main className="mx-auto max-w-[1120px] px-6 py-12">
+    <main className="mx-auto max-w-[1120px] px-4 py-8 sm:px-6 sm:py-12">
       <Eyebrow>Behavioural interview practice</Eyebrow>
-      <h1 className="mt-2 text-[36px] font-bold tracking-[-0.02em] text-ink">History</h1>
+      <h1 className="mt-2 text-[28px] font-bold tracking-[-0.02em] text-ink sm:text-[36px]">History</h1>
       <p className="mt-2 max-w-prose text-sm leading-[1.55] text-ink-muted">
         Past sessions and how your STAR answers have progressed.
       </p>
@@ -51,7 +51,7 @@ export function HistoryView({ page, progress }: HistoryViewProps) {
           {trend.sessionCount === 0 ? (
             <EmptyState>No sessions yet.</EmptyState>
           ) : (
-            <div className="flex items-baseline gap-4">
+            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
               <div>
                 <p className="text-xs uppercase tracking-[0.08em] text-ink-faint">First</p>
                 <p className="text-2xl font-semibold tabular-nums text-ink">
@@ -76,7 +76,7 @@ export function HistoryView({ page, progress }: HistoryViewProps) {
                   {formatDelta(trend.delta)}
                 </p>
               </div>
-              <p className="ml-auto text-xs text-ink-faint">
+              <p className="text-xs text-ink-faint sm:ml-auto">
                 {trend.sessionCount} session{trend.sessionCount === 1 ? '' : 's'}
               </p>
             </div>

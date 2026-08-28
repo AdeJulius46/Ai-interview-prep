@@ -87,6 +87,12 @@ export const SEED_QUESTIONS: SeedQuestion[] = [
 ];
 
 export async function seedQuestions(prisma: PrismaClient): Promise<void> {
+  const existing = await prisma.question.count();
+  if (existing > 0) {
+    console.log(`Question table already has ${existing} rows, skipping seed.`);
+    return;
+  }
+
   await prisma.question.createMany({
     data: SEED_QUESTIONS.map((q) => ({
       competency: q.competency,

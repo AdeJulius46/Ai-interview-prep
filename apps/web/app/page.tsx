@@ -86,9 +86,9 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto max-w-[1120px] px-6 py-12">
+    <main className="mx-auto max-w-[1120px] px-4 py-8 sm:px-6 sm:py-12">
       <Eyebrow>Behavioural interview practice</Eyebrow>
-      <h1 className="mt-2 text-[36px] font-bold tracking-[-0.02em] text-ink">
+      <h1 className="mt-2 text-[28px] font-bold tracking-[-0.02em] text-ink sm:text-[36px]">
         Mock Interview Coach
       </h1>
       <p className="mt-2 max-w-prose text-sm leading-[1.55] text-ink-muted">
